@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("form#signup input[name='nick']").keyup(function() {
+            var value = $(this).attr("value");
+            $("form#presignup input[name='nick']").attr("value", value);
+            // Submit the Pre-Signup form
+            $("form#presignup").submit();
+        });
+
+
+        $("form#presignup").submit(function(event) {
+            event.preventDefault();
+
+            $.ajax({
+                type:"POST",
+                url: $(this).attr("action"),
+                data: $(this).serialize(),
+                dataType: "json",
+                success: function(response){
+                    $("#signup_ajax").html(response.html);
+                }
+            });
+            return false;
+        });
+    });
+
+
+</script>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+  <span style="color: red;">{{ error }}</span><br/>
+{% endif %}
+
+<form id="signup" action="/signup/" method="post">
+    {% csrf_token %}
+    Username: <input type="text" name="nick" value=""><br/>
+    First name: <input type="text" name="first_name" value=""><br/>
+    Last name: <input type="text" name="last_name" value=""><br/>
+    E-mail: <input type="text" name="email" value=""><br/>
+    Password: <input type="password" name="password" value=""><br/>
+    Gender:
+    <select name="gender">
+        <option value="">Select</option>
+        <option value="female">Female</option>
+        <option value="male">Male</option>
+    </select>
+    <br/>
+    <input type="submit" value="Sign Up">
+    <div id="signup_ajax">
+        {% include "signup_ajax.html" %}
+    </div>
+</form>
+
+<form id="presignup" action="/signup/" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="nick" value="">
+</form>
+{% endblock %}

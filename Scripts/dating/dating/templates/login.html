@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+
+{% block content %}
+{% if error %}
+  <span style="color: red;">{{ error }}</span><br/>
+{% endif %}
+
+<form id="login" action="/login/" method="post">
+    {% csrf_token %}
+    Username or E-mail: <input type="text" name="nick" value=""><br/>
+    Password: <input type="password" name="password" value=""><br/>
+    <input type="submit" value="Login">
+</form>
+
+{% if help %}
+<p>
+Did you <a href="/forgot/">forget your password</a> and need help login in?
+</p>
+{% endif %}
+
+{% endblock %}

@@ -36,7 +36,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'dating',
+    'annoying',
 )
+
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -45,6 +48,11 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    "django.contrib.auth.context_processors.auth",
+    "django.core.context_processors.request",                   # Allows accessing the session from the view template
 )
 
 ROOT_URLCONF = 'dating.urls'
@@ -59,10 +67,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dating',
-		'USER': 'root',
-		'PASSWORD': 'admin',
-		'HOST': '', 				# Set to empty string for localhost.
-		'PORT': '3306'
+        'USER': 'root',
+        'PASSWORD': 'admin',
+        'HOST': '', 				# Set to empty string for localhost.
+        'PORT': '3306'
     }
 }
 
