@@ -7,10 +7,20 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-from django.db import models
+
+# Python Imports
 import hashlib
 import binascii
 import re
+
+# Django Imports
+from django.db import models
+from django.conf import settings
+
+# Local Imports
+
+# Third Party Imports
+
 
 '''
 Useful constructs
@@ -51,11 +61,10 @@ class User(models.Model):
         user = User(nick=nick, first_name=first_name, last_name=last_name, gender=gender, orientation=orientation,
                     email=email, password=password, salt=salt, confirmation=confirmation)
         user.active = 0
+        if settings.SKIP_VALIDATION:
+            user.active = 1
         user.save()
 
-        # TODO, send the user an email with the confirmation
-        # Provide a way to resend the email.
-        # Initially, the account will be disabled until they confirm that email.
         return user
 
     @classmethod

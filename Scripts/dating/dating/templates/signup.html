@@ -14,16 +14,40 @@
         }
     }
 
-    function show_gender(obj) {
-        var value = obj.attr("value");
+    function show_gender() {
+        var value = $("select#gender").attr("value");
         $("img.gender").hide();
         $("img." + value).show();
     }
 
-    function show_partner(obj) {
-        var value = obj.attr("value");
+    function show_partner() {
+        var gender = $("select#gender").attr("value");
+        var orientation = $("select#orientation").attr("value");
+
         $("img.partner").hide();
-        $("img." + value).show();
+
+        var partner = "none";
+        if (orientation == "bisexual") {
+            partner = "both";
+        } else {
+            var combo = gender + ":" + orientation;
+            switch (combo) {
+                case "male:straight":
+                    partner = "women";
+                    break;
+                case "male:gay":
+                    partner = "men";
+                    break;
+                case "female:straight":
+                    partner = "men";
+                    break;
+                case "female:gay":
+                    partner = "women";
+                    break;
+            }
+        }
+
+        $("img." + partner).show();
     }
 
     function is_username_valid(username) {
@@ -80,10 +104,11 @@
 
         $("select#gender").change(function() {
             show_gender($(this));
+            show_partner();
         });
 
-        $("select#partner").change(function() {
-            show_partner($(this));
+        $("select#orientation").change(function() {
+            show_partner();
         });
 
         // Initialize
@@ -93,8 +118,8 @@
             show_color_on_value($(this));
         });
 
-        show_gender($("select#gender"));
-        show_partner($("select#partner"));
+        show_gender();
+        show_partner();
     });
 </script>
 {% endblock %}
@@ -117,7 +142,7 @@
         </tr>
         <tr>
             <td colspan="2">
-                <input type="text" name="first_name" value="{{ first_name }}" class="required red_on_empty" placeholder="First Name">
+                <input type="text" name="first_name" value="{{ first_name }}" class="required red_on_empty" placeholder="First Name"><br/>
                 <input type="text" name="last_name" value="{{ last_name }}" class="required red_on_empty" placeholder="Last Name">
             </td>
         </tr>
@@ -138,12 +163,13 @@
                     <img src="/static/images/woman.gif" class="female gender" />
                     <img src="/static/images/man.gif" class="male gender" />
                 </div>
-                and interested in finding
-                <select id="partner" name="partner" class="required red_on_empty">
-                    <option value="men" {% if partner == "men" %} selected="selected" {% endif %}>Men</option>
-                    <option value="women" {% if partner == "women" %} selected="selected" {% endif %}>Women</option>
-                    <option value="both" {% if partner == "both" %} selected="selected" {% endif %}>Both</option>
+                and
+                <select id="orientation" name="orientation" class="required red_on_empty">
+                    <option value="straight" {% if orientation == "straight" %} selected="selected" {% endif %}>Straight</option>
+                    <option value="gay" {% if orientation == "gay" %} selected="selected" {% endif %}>Gay</option>
+                    <option value="bisexual" {% if orientation == "bisexual" %} selected="selected" {% endif %}>Bisexual</option>
                 </select>
+                so I want to find
                 <div style="display: inline; top: 20px; position: relative;">
                     <img src="/static/images/men.gif" class="men partner" />
                     <img src="/static/images/women.gif" class="women partner" />

@@ -21,6 +21,7 @@ SECRET_KEY = 'r0xp0_g#8=v^#pdq*1=fatxk-8&3s@r__x_ux30ylx1&+98a41'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+SKIP_VALIDATION = True
 
 TEMPLATE_DEBUG = True
 
@@ -95,3 +96,4 @@ TEMPLATE_DIRS = (
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
+LOGIN_URL = '/login/'

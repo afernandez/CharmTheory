@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}{{ user.nick }}{% endblock %}
+
+{% block content %}
+<div style="clear: both;">
+    Picture of {{ user.nick }}
+</div>
+<div style="clear: both;">
+    <div style="float: left; width: 200px; border: 1px solid black;">
+        Stats
+    </div>
+    <div style="float: left; border: 1px solid black;">
+        About Me
+    </div>
+</div>
+<div style="clear: both;" />
+{% endblock %}

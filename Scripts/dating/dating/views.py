@@ -12,11 +12,12 @@ from datetime import datetime, timedelta
 
 # Django Imports
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import login_required
 
 # Local imports
 from dating.models import User
@@ -27,7 +28,17 @@ from dating.models import User
 from annoying.decorators import ajax_request, render_to
 import json
 
-# Some pages require the user to first login
+
+def requires_login(func):
+    def inner(request, *args, **kwargs):
+        if "nick" in request.session and request.session["nick"] != "":
+            return func(request, *args, **kwargs)
+        else:
+            # First authenticate user
+            data = {"next": request.path}
+            return render(request, 'login.html', data)
+    return inner
+
 
 def home(request):
     return render(request, "index.html")
@@ -35,19 +46,25 @@ def home(request):
 
 def login(request):
     if request.method == "GET":
+        next = request.GET.get("next", "")
+        data = {"next": next}
         return render(request, "login.html")
     else:
         # If the user is already logged in, process the form so they can log-in as another user.
-        nick = request.POST["nick"] if "nick" in request.POST else ""
-        password = request.POST["password"] if "password" in request.POST else ""
+        nick = request.POST.get("nick", "")
+        password = request.POST.get("password", "")
+        next = request.POST.get("next", "")
         MAX_ATTEMPTS = 3
 
+        data = {"next": next}
         if nick is None or nick == "":
             error = "Please enter a username or E-mail"
-            return render(request, "login.html", {"error": error})
+            data["error"] = error
+            return render(request, "login.html", data)
         if password is None or password == "":
             error = "Please enter a password"
-            return render(request, "login.html", {"error": error})
+            data["error"] = error
+            return render(request, "login.html", data)
 
         # Check if the username is an email or nickname
         # If contains "@", find the user with that email.
@@ -59,8 +76,9 @@ def login(request):
 
         if user is None:
             error = "Unable to find a user with that name and password."
-            return render(request, "login.html", {"error": error,
-                                                  "help": True})
+            data["error"] = error
+            data["help"] = True
+            return render(request, "login.html", data)
 
         login_attempts = request.session["login_attempts"] if "login_attempts" in request.session else 0
         can_login_time = request.session["can_login_time"] if "can_login_time" in request.session else None
@@ -74,28 +92,34 @@ def login(request):
 
         if login_attempts >= MAX_ATTEMPTS and can_login_time is not None and datetime.utcnow() < can_login_time:
             error = "Exceeded the number of login attempts. Please wait a minute before trying again."
-            return render(request, "login.html", {"error": error,
-                                                  "help": True})
+            data["error"] = error
+            data["help"] = True
+            return render(request, "login.html", data)
 
         user = User.login(user.nick, password)
         if user is None:
             login_attempts += 1
             request.session["login_attempts"] = login_attempts
             error = "Unable to find a user with that name and password."
-            return render(request, "login.html", {"error": error,
-                                                  "help": True})
+            data["error"] = error
+            data["help"] = True
+            return render(request, "login.html", data)
+
         # Save the nickname in the session
         request.session["nick"] = user.nick
         # Rest the login attempts and limit on logging in
         request.session["login_attempts"] = 0
         request.session["can_login_time"] = None
 
+        if next and next != "":
+            return redirect(next)
+
         return render(request, "index.html")
 
 
 def logout(request):
     # Clear the nickname
-    request.session["nick"] = None
+    del request.session["nick"]
     return render(request, "index.html")
 
 
@@ -123,10 +147,10 @@ def signup(request):
         email = request.POST["email"] if "email" in request.POST else ""
         raw_password = request.POST["password"] if "password" in request.POST else ""
         gender = request.POST["gender"] if "gender" in request.POST else ""
-        partner = request.POST["partner"] if "partner" in request.POST else ""
+        orientation = request.POST["orientation"] if "orientation" in request.POST else ""
 
         data = {"nick": nick, "first_name": first_name, "last_name": last_name, "email": email, "gender": gender,
-                "partner": partner}
+                "orientation": orientation}
 
         if nick is None or nick == "":
             error = "Please enter a username."
@@ -152,18 +176,10 @@ def signup(request):
             error = "Please select a gender."
             data["error"] = error
             return render(request, "signup.html", data)
-        if partner is None or partner == "":
-            error = "Please select what partner(s) you're interested in."
+        if orientation is None or orientation == "":
+            error = "Please select an orientation."
             data["error"] = error
             return render(request, "signup.html", data)
-
-        orientation = ""
-        if partner == "both":
-            orientation = "bisexual"
-        elif (gender == "male" and partner == "women") or (gender == "female" and partner == "men"):
-            orientation = "straight"
-        else:
-            orientation = "gay"
 
         nick, error = User.validate_username(nick)
         if nick == "" and error != "":
@@ -251,3 +267,12 @@ def ack_confirmation(request, nick, confirmation):
             data = {"nick": user.nick}
             return render(request, "login.html", data)
     return render(request, "index.html")
+
+
+@requires_login
+def user(request, nick):
+    user = User.get_from_nick(nick)
+    data = {}
+    if user:
+        data = {"user": user}
+    return render(request, "user.html", data)
