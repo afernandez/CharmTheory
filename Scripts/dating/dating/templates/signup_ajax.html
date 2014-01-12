@@ -1,8 +1,5 @@
 {% if valid_nick %}
-    <span style="color: green;">:-)</span>
-    {% if nick %}
-        {{ nick }} is available
-    {% endif %}
+    <span style="color: green;">available :-)</span>
 {% else %}
-    <span style="color: red;">:-(</span>
+    <span style="color: red;">unavailable :-(</span>
 {% endif %}

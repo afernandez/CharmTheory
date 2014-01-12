@@ -28,9 +28,12 @@ class User(models.Model):
     first_name = models.CharField(max_length=45)
     last_name = models.CharField(max_length=45)
     gender = models.CharField(max_length=45)
+    orientation = models.CharField(max_length=45)
     email = models.EmailField(max_length=64)
     password = models.BinaryField()
     salt = models.BinaryField()
+    confirmation = models.CharField(max_length=64)
+    active = models.SmallIntegerField()
 
     class Meta:
          db_table = "user"
@@ -39,14 +42,20 @@ class User(models.Model):
         return u'%s (%s %s : %s)' % (self.nick, self.first_name, self.last_name, self.email)
 
     @classmethod
-    def create(cls, nick, first_name, last_name, gender, email, password, salt):
+    def create(cls, nick, first_name, last_name, gender, orientation, email, password, salt, confirmation):
         """
         @param password: binary data
         @param salt: binary data
+        @param confirmation: suffix of the URL to confirm the user's account
         """
-        user = User(nick=nick, first_name=first_name, last_name=last_name, gender=gender, email=email,
-                    password=password, salt=salt)
+        user = User(nick=nick, first_name=first_name, last_name=last_name, gender=gender, orientation=orientation,
+                    email=email, password=password, salt=salt, confirmation=confirmation)
+        user.active = 0
         user.save()
+
+        # TODO, send the user an email with the confirmation
+        # Provide a way to resend the email.
+        # Initially, the account will be disabled until they confirm that email.
         return user
 
     @classmethod
@@ -102,3 +111,19 @@ class User(models.Model):
                 else:
                     return "", "Username can only contain letters, numbers, underscores, and dashes."
         return "", "Username must not be empty."
+
+    def send_confirmation(self):
+        """
+        @return: Returns true if the email was sent, otherwie, false.
+        """
+        if self.active == 0:
+            # TODO, send the email
+            return True
+        return False
+
+    def ack_confirmation(self, confirmation):
+        if self.active == 0 and self.confirmation == confirmation:
+            self.active = 1
+            self.save()
+            return True
+        return False

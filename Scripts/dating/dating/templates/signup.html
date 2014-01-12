@@ -14,6 +14,18 @@
         }
     }
 
+    function show_gender(obj) {
+        var value = obj.attr("value");
+        $("img.gender").hide();
+        $("img." + value).show();
+    }
+
+    function show_partner(obj) {
+        var value = obj.attr("value");
+        $("img.partner").hide();
+        $("img." + value).show();
+    }
+
     function is_username_valid(username) {
         if (username != "") {
             username = username.replace(/^\s+|\s+$/g,'');
@@ -41,6 +53,8 @@
                 } else {
                     $("#signup_ajax").html("<span style='color: red;'>Must only contain letters, numbers, dashes, and underscores.</span>");
                 }
+            } else {
+                $("#signup_ajax").html("");
             }
         });
 
@@ -60,17 +74,27 @@
             return false;
         });
 
-        $(".required").each(function() {
-            show_color_on_value($(this));
-        });
-
         $("input.required").keyup(function() {
             show_color_on_value($(this));
         });
 
-        $("select.required").change(function() {
+        $("select#gender").change(function() {
+            show_gender($(this));
+        });
+
+        $("select#partner").change(function() {
+            show_partner($(this));
+        });
+
+        // Initialize
+        $("#signup_ajax").html("");
+
+        $(".required").each(function() {
             show_color_on_value($(this));
         });
+
+        show_gender($("select#gender"));
+        show_partner($("select#partner"));
     });
 </script>
 {% endblock %}
@@ -84,8 +108,7 @@
     {% csrf_token %}
     <table>
         <tr>
-            <td>Username <span class="asterisk">*</span>:</td>
-            <td><input type="text" name="nick" value="{{ nick }}" class="required red_on_empty"></td>
+            <td><input type="text" name="nick" value="{{ nick }}" class="required red_on_empty" placeholder="Username"></td>
             <td>
                 <div id="signup_ajax" style="margin-left: 10px;">
                     {% include "signup_ajax.html" %}
@@ -93,33 +116,43 @@
             </td>
         </tr>
         <tr>
-            <td>First Name <span class="asterisk">*</span>:</td>
-            <td colspan="2"><input type="text" name="first_name" value="{{ first_name }}" class="required red_on_empty"></td>
-        </tr>
-        <tr>
-            <td>Last Name <span class="asterisk">*</span>:</td>
-            <td colspan="2"><input type="text" name="last_name" value="{{ last_name }}" class="required red_on_empty"></td>
-        </tr>
-        <tr>
-            <td>E-mail <span class="asterisk">*</span>:</td>
-            <td><input type="text" name="email" value="{{ email }}" class="required red_on_empty"></td>
-        </tr>
-        <tr>
-            <td>Password <span class="asterisk">*</span>:</td>
-            <td colspan="2"><input type="password" name="password" value="" class="required red_on_empty"></td>
-        </tr>
-        <tr>
-            <td>Gender <span class="asterisk">*</span>:</td>
             <td colspan="2">
-                <select name="gender" class="required red_on_empty">
-                    <option value="">Select</option>
-                    <option value="female" {% if gender == "female" %} selected="selected" {% endif %}>Female</option>
-                    <option value="male" {% if gender == "male" %} selected="selected" {% endif %}>Male</option>
-                </select>
+                <input type="text" name="first_name" value="{{ first_name }}" class="required red_on_empty" placeholder="First Name">
+                <input type="text" name="last_name" value="{{ last_name }}" class="required red_on_empty" placeholder="Last Name">
             </td>
         </tr>
         <tr>
-            <td colspan="3">
+            <td><input type="text" name="email" value="{{ email }}" class="required red_on_empty" placeholder="E-mail"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="password" name="password" value="" class="required red_on_empty" placeholder="Password"></td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                I am a
+                <select id="gender" name="gender" class="required red_on_empty">
+                    <option value="female" {% if gender == "female" %} selected="selected" {% endif %}>Girl</option>
+                    <option value="male" {% if gender == "male" %} selected="selected" {% endif %}>Guy</option>
+                </select>
+                <div style="display: inline; top: 20px; position: relative;">
+                    <img src="/static/images/woman.gif" class="female gender" />
+                    <img src="/static/images/man.gif" class="male gender" />
+                </div>
+                and interested in finding
+                <select id="partner" name="partner" class="required red_on_empty">
+                    <option value="men" {% if partner == "men" %} selected="selected" {% endif %}>Men</option>
+                    <option value="women" {% if partner == "women" %} selected="selected" {% endif %}>Women</option>
+                    <option value="both" {% if partner == "both" %} selected="selected" {% endif %}>Both</option>
+                </select>
+                <div style="display: inline; top: 20px; position: relative;">
+                    <img src="/static/images/men.gif" class="men partner" />
+                    <img src="/static/images/women.gif" class="women partner" />
+                    <img src="/static/images/both.gif" class="both partner" />
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
                 <input type="submit" value="Sign Up">
             </td>
         </tr>

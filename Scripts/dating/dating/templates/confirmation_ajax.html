@@ -1,0 +1,6 @@
+{% if last_confirmation_time %}
+    <span style="color: green;">Just re-sent</span>
+{% endif %}
+{% if error %}
+    <span style="color: red;">{{ error }}</span>
+{% endif %}

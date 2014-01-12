@@ -13,8 +13,8 @@
 
 <form id="login" action="/login/" method="post">
     {% csrf_token %}
-    Username or E-mail: <input type="text" name="nick" value=""><br/>
-    Password: <input type="password" name="password" value=""><br/>
+    <input type="text" name="nick" value="{{ nick }}" placeholder="Username or E-mail"><br/>
+    <input type="password" name="password" value="" placeholder="Password"><br/>
     <input type="submit" value="Login">
 </form>
 

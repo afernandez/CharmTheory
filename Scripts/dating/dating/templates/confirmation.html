@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Signup Confirmation{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        $("form#confirmation").submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+                type:"POST",
+                url: $(this).attr("action"),
+                data: $(this).serialize(),
+                dataType: "json",
+                success: function(response){
+                    $("#confirmation_ajax").html(response.html);
+                }
+            });
+            return false;
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+
+<p>Almost done, we have to confirm your E-mail address.<br/>
+Within the next couple of minutes, you will receive an email with a link to <strong>confirm</strong> your account.<br/><br/>
+If you do not receive the E-mail within five minutes, please check your spam folder first.<br/>
+If you want us to <strong>resend</strong>, just click <a href="#" onclick="$('form#confirmation').submit();">here</a>.
+</p>
+
+<div id="confirmation_ajax">
+    {% include "confirmation_ajax.html" %}
+</div>
+
+<!-- AJAX form used to submit the nickname for availability. -->
+<form id="confirmation" action="/confirmation/" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="nick" value="{{ request.session.nick }}">
+</form>
+
+{% endblock %}

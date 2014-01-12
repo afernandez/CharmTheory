@@ -123,8 +123,10 @@ def signup(request):
         email = request.POST["email"] if "email" in request.POST else ""
         raw_password = request.POST["password"] if "password" in request.POST else ""
         gender = request.POST["gender"] if "gender" in request.POST else ""
+        partner = request.POST["partner"] if "partner" in request.POST else ""
 
-        data = {"nick": nick, "first_name": first_name, "last_name": last_name, "email": email, "gender": gender}
+        data = {"nick": nick, "first_name": first_name, "last_name": last_name, "email": email, "gender": gender,
+                "partner": partner}
 
         if nick is None or nick == "":
             error = "Please enter a username."
@@ -150,6 +152,18 @@ def signup(request):
             error = "Please select a gender."
             data["error"] = error
             return render(request, "signup.html", data)
+        if partner is None or partner == "":
+            error = "Please select what partner(s) you're interested in."
+            data["error"] = error
+            return render(request, "signup.html", data)
+
+        orientation = ""
+        if partner == "both":
+            orientation = "bisexual"
+        elif (gender == "male" and partner == "women") or (gender == "female" and partner == "men"):
+            orientation = "straight"
+        else:
+            orientation = "gay"
 
         nick, error = User.validate_username(nick)
         if nick == "" and error != "":
@@ -192,12 +206,48 @@ def signup(request):
         hashed_password = m.hexdigest()
         hashed_password_bin = binascii.a2b_hex(hashed_password)
         salt_bin = binascii.a2b_hex(salt)
+
+        confirmation = uuid.uuid4().hex
         # Create the user
-        user = User.create(nick, first_name, last_name, gender, email, hashed_password_bin, salt_bin)
+        user = User.create(nick, first_name, last_name, gender, orientation, email, hashed_password_bin, salt_bin,
+                           confirmation)
 
         request.session["nick"] = user.nick
-        return render(request, "index.html")
+        user.send_confirmation()
+        return render(request, "confirmation.html")
 
 
-def profile(request):
+def confirmation(request):
+    if request.is_ajax():
+        nick = request.POST["nick"] if "nick" in request.POST else ""
+        last_confirmation_time = None
+        error = None
+        if nick and nick != "":
+            user = User.get_from_nick(nick)
+            if user:
+                if user.send_confirmation():
+                    last_confirmation_time = datetime.utcnow()
+                else:
+                    error = "Unable to send confirmation"
+            else:
+                error = "Unable to get user"
+        else:
+            error = "Unable to get username"
+        data = {"last_confirmation_time": last_confirmation_time}
+        html = render_to_string("confirmation_ajax.html", data)
+        res = {"html": html}
+        return HttpResponse(json.dumps(res), mimetype='application/json')
+
+    if request.method == "GET":
+        return render(request, "confirmation.html")
+
+
+def ack_confirmation(request, nick, confirmation):
+    user = User.get_from_nick(nick)
+    if user:
+        confirmed = user.ack_confirmation(confirmation)
+        # Redirect to login page
+        if confirmed:
+            data = {"nick": user.nick}
+            return render(request, "login.html", data)
     return render(request, "index.html")
