@@ -3,6 +3,10 @@
 
 
 {% block content %}
+{% if request.session.login_attempts and request.session.login_attempts > 0 %}
+        Login attempts {{ request.session.login_attempts }}<br/>
+{% endif %}
+
 {% if error %}
   <span style="color: red;">{{ error }}</span><br/>
 {% endif %}

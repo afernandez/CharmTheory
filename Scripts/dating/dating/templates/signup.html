@@ -3,12 +3,45 @@
 
 {% block javascript %}
 <script type="text/javascript">
+
+    function show_color_on_value(obj){
+        var val = obj.attr("value");
+        val = val.replace(/^\s+|\s+$/g,'');
+        if (val == "") {
+            obj.addClass("red_on_empty");
+        } else {
+            obj.removeClass("red_on_empty");
+        }
+    }
+
+    function is_username_valid(username) {
+        if (username != "") {
+            username = username.replace(/^\s+|\s+$/g,'');
+            var re = /^[A-z0-9_\-]+$/i;
+            var found = username.match(re);
+            if (found != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     $(document).ready(function() {
         $("form#signup input[name='nick']").keyup(function() {
             var value = $(this).attr("value");
-            $("form#presignup input[name='nick']").attr("value", value);
-            // Submit the Pre-Signup form
-            $("form#presignup").submit();
+            value = value.replace(/^\s+|\s+$/g,'');
+
+            if (value != "") {
+                var valid = is_username_valid(value);
+
+                if (valid) {
+                    $("form#presignup input[name='nick']").attr("value", value);
+                    // Submit the Pre-Signup form
+                    $("form#presignup").submit();
+                } else {
+                    $("#signup_ajax").html("<span style='color: red;'>Must only contain letters, numbers, dashes, and underscores.</span>");
+                }
+            }
         });
 
 
@@ -26,9 +59,19 @@
             });
             return false;
         });
+
+        $(".required").each(function() {
+            show_color_on_value($(this));
+        });
+
+        $("input.required").keyup(function() {
+            show_color_on_value($(this));
+        });
+
+        $("select.required").change(function() {
+            show_color_on_value($(this));
+        });
     });
-
-
 </script>
 {% endblock %}
 
@@ -39,24 +82,51 @@
 
 <form id="signup" action="/signup/" method="post">
     {% csrf_token %}
-    Username: <input type="text" name="nick" value=""><br/>
-    First name: <input type="text" name="first_name" value=""><br/>
-    Last name: <input type="text" name="last_name" value=""><br/>
-    E-mail: <input type="text" name="email" value=""><br/>
-    Password: <input type="password" name="password" value=""><br/>
-    Gender:
-    <select name="gender">
-        <option value="">Select</option>
-        <option value="female">Female</option>
-        <option value="male">Male</option>
-    </select>
-    <br/>
-    <input type="submit" value="Sign Up">
-    <div id="signup_ajax">
-        {% include "signup_ajax.html" %}
-    </div>
+    <table>
+        <tr>
+            <td>Username <span class="asterisk">*</span>:</td>
+            <td><input type="text" name="nick" value="{{ nick }}" class="required red_on_empty"></td>
+            <td>
+                <div id="signup_ajax" style="margin-left: 10px;">
+                    {% include "signup_ajax.html" %}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>First Name <span class="asterisk">*</span>:</td>
+            <td colspan="2"><input type="text" name="first_name" value="{{ first_name }}" class="required red_on_empty"></td>
+        </tr>
+        <tr>
+            <td>Last Name <span class="asterisk">*</span>:</td>
+            <td colspan="2"><input type="text" name="last_name" value="{{ last_name }}" class="required red_on_empty"></td>
+        </tr>
+        <tr>
+            <td>E-mail <span class="asterisk">*</span>:</td>
+            <td><input type="text" name="email" value="{{ email }}" class="required red_on_empty"></td>
+        </tr>
+        <tr>
+            <td>Password <span class="asterisk">*</span>:</td>
+            <td colspan="2"><input type="password" name="password" value="" class="required red_on_empty"></td>
+        </tr>
+        <tr>
+            <td>Gender <span class="asterisk">*</span>:</td>
+            <td colspan="2">
+                <select name="gender" class="required red_on_empty">
+                    <option value="">Select</option>
+                    <option value="female" {% if gender == "female" %} selected="selected" {% endif %}>Female</option>
+                    <option value="male" {% if gender == "male" %} selected="selected" {% endif %}>Male</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <input type="submit" value="Sign Up">
+            </td>
+        </tr>
+    </table>
 </form>
 
+<!-- AJAX form used to submit the nickname for availability. -->
 <form id="presignup" action="/signup/" method="post">
     {% csrf_token %}
     <input type="hidden" name="nick" value="">

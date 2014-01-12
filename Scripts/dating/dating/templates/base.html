@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <title>{% block title %}{% endblock %}</title>
-
+    <link rel="stylesheet" type="text/css" href="/static/theme.css">
     <script type="text/javascript">
     document.write("\<script src='//ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js' type='text/javascript'>\<\/script>");
     </script>
@@ -16,7 +16,9 @@
         <a href="/login">Log in</a> | <a href="/signup">Sign Up</a>
     {% endif %}
 
+    <div style="clear: both;">
     {% block content %}{% endblock %}
+    </div>
     {% block footer %}
     <hr>
     <p>Thanks for visiting my site.</p>

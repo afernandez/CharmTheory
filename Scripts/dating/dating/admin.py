@@ -5,8 +5,8 @@ from dating.models import User
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('nick', 'first_name', 'last_name', 'gender')
-    search_fields = ('nick', 'first_name', 'last_name')
+    list_display = ('nick', 'first_name', 'last_name', 'gender', 'email')
+    search_fields = ('nick', 'first_name', 'last_name', 'email')
     list_filter = ('gender',)
     ordering = ('nick',)
 

@@ -4,10 +4,24 @@ from django.template import Context
 from django.http import HttpResponse, Http404
 '''
 
+# Python Imports
+import hashlib
+import uuid
+import binascii
+from datetime import datetime, timedelta
+
+# Django Imports
 from django.http import HttpResponse
 from django.shortcuts import render
-from dating.models import User
 from django.template.loader import render_to_string
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
+# Local imports
+from dating.models import User
+
+# Third Party Imports
 
 # Needed by AJAX
 from annoying.decorators import ajax_request, render_to
@@ -26,6 +40,7 @@ def login(request):
         # If the user is already logged in, process the form so they can log-in as another user.
         nick = request.POST["nick"] if "nick" in request.POST else ""
         password = request.POST["password"] if "password" in request.POST else ""
+        MAX_ATTEMPTS = 3
 
         if nick is None or nick == "":
             error = "Please enter a username or E-mail"
@@ -38,20 +53,43 @@ def login(request):
         # If contains "@", find the user with that email.
         # Otherwise, attempt to find that username.
         if "@" in nick:
-            nick = User.get_from_email(nick)
-            if nick is None:
-                error = "Unable to find a user with that name and password."
-                return render(request, "login.html", {"error": error,
-                                                      "help": True})
+            user = User.get_from_email(nick)
+        else:
+            user = User.get_from_nick(nick)
 
-        user = User.login(nick, password)
         if user is None:
             error = "Unable to find a user with that name and password."
             return render(request, "login.html", {"error": error,
                                                   "help": True})
 
+        login_attempts = request.session["login_attempts"] if "login_attempts" in request.session else 0
+        can_login_time = request.session["can_login_time"] if "can_login_time" in request.session else None
+        if can_login_time:
+            can_login_time = datetime.strptime(json.loads(can_login_time), '%Y-%m-%dT%H:%M:%S.%f')
+
+        if login_attempts >= MAX_ATTEMPTS and can_login_time is None:
+            # Make the user wait a couple of minutes before they can login
+            can_login_time = datetime.utcnow() + timedelta(minutes=1)
+            request.session["can_login_time"] = json.dumps(can_login_time, cls=DjangoJSONEncoder)
+
+        if login_attempts >= MAX_ATTEMPTS and can_login_time is not None and datetime.utcnow() < can_login_time:
+            error = "Exceeded the number of login attempts. Please wait a minute before trying again."
+            return render(request, "login.html", {"error": error,
+                                                  "help": True})
+
+        user = User.login(user.nick, password)
+        if user is None:
+            login_attempts += 1
+            request.session["login_attempts"] = login_attempts
+            error = "Unable to find a user with that name and password."
+            return render(request, "login.html", {"error": error,
+                                                  "help": True})
         # Save the nickname in the session
         request.session["nick"] = user.nick
+        # Rest the login attempts and limit on logging in
+        request.session["login_attempts"] = 0
+        request.session["can_login_time"] = None
+
         return render(request, "index.html")
 
 
@@ -83,56 +121,83 @@ def signup(request):
         first_name = request.POST["first_name"] if "first_name" in request.POST else ""
         last_name = request.POST["last_name"] if "last_name" in request.POST else ""
         email = request.POST["email"] if "email" in request.POST else ""
-        password = request.POST["password"] if "password" in request.POST else ""
+        raw_password = request.POST["password"] if "password" in request.POST else ""
         gender = request.POST["gender"] if "gender" in request.POST else ""
+
+        data = {"nick": nick, "first_name": first_name, "last_name": last_name, "email": email, "gender": gender}
 
         if nick is None or nick == "":
             error = "Please enter a username."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
         if first_name is None or first_name == "":
             error = "Please enter a first name."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
         if last_name is None or last_name == "":
             error = "Please enter a last name."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
         if email is None or email == "":
             error = "Please enter an email."
-            return render(request, "signup.html", {"error": error})
-        if password is None or password == "":
+            data["error"] = error
+            return render(request, "signup.html", data)
+        if raw_password is None or raw_password == "":
             error = "Please enter a password."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
         if gender is None or gender == "":
             error = "Please select a gender."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
+
+        nick, error = User.validate_username(nick)
+        if nick == "" and error != "":
+            data["error"] = error
+            return render(request, "signup.html", data)
 
         # Check that the username doesn't already exist, the email is valid, and the password meets the requirements.
         try:
             user = User.objects.get(nick=nick)
             error = "That username is already taken, please try another."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
         except User.DoesNotExist:
             pass
 
-        if "@" not in email:
+        try:
+            validate_email(email)
+        except ValidationError:
             error = "Please enter a valid e-mail."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
 
-        # TODO
-        '''
         try:
             user = User.objects.get(email=email)
             error = "That email is already taken, please try another."
-            return render(request, "signup.html", {"error": error})
+            data["error"] = error
+            return render(request, "signup.html", data)
         except User.DoesNotExist:
             pass
-        '''
-        if len(password) < 3:
-            error = "Please enter a stronger password."
-            return render(request, "signup.html", {"error": error})
 
+        if len(raw_password) < 4:
+            error = "Please enter a stronger password."
+            data["error"] = error
+            return render(request, "signup.html", data)
+
+        salt = uuid.uuid4().hex
+        m = hashlib.sha512()
+        m.update(raw_password)
+        m.update(salt)
+        hashed_password = m.hexdigest()
+        hashed_password_bin = binascii.a2b_hex(hashed_password)
+        salt_bin = binascii.a2b_hex(salt)
         # Create the user
-        user = User.create(nick, first_name, last_name, gender)
+        user = User.create(nick, first_name, last_name, gender, email, hashed_password_bin, salt_bin)
 
         request.session["nick"] = user.nick
         return render(request, "index.html")
 
+
+def profile(request):
+    return render(request, "index.html")
