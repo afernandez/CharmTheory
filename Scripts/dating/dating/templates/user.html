@@ -3,11 +3,140 @@
 
 {% block content %}
 <div style="clear: both;">
-    Picture of {{ user.nick }}
+    Picture of {{ user.nick }}<br/>
+    Gender {{ user.gender }}<br/>
+    Orientation {{ user.orientation }}<br/>
+    Age {{ user.age }}<br/>
+    City {{ user.city }}<br/>
 </div>
 <div style="clear: both;">
     <div style="float: left; width: 200px; border: 1px solid black;">
-        Stats
+        <table>
+            {% if user.relationship %}
+            <tr>
+                <td>Relationship:</td>
+                <td>{{ user.relationship }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.personality %}
+            <tr>
+                <td>Personality:</td>
+                <td>{{ user.personality }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.humor %}
+            <tr>
+                <td>Humor:</td>
+                <td>{{ user.humor }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.ethnicity %}
+            <tr>
+                <td>Ethnicity:</td>
+                <td>{{ user.ethnicity }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.body %}
+            <tr>
+                <td>Body type:</td>
+                <td>{{ user.body }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.height %}
+            <tr>
+                <td>Height:</td>
+                <td>{{ user.height }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.education %}
+            <tr>
+                <td>Education:</td>
+                <td>{{ user.education }}
+                    {% if user.college %}
+                        </br>{{ user.college }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+
+            {% if user.job %}
+            <tr>
+                <td>Job:</td>
+                <td>{{ user.job }}
+                </td>
+            </tr>
+            {% endif %}
+
+            {% if user.income %}
+            <tr>
+                <td>Income:</td>
+                <td>{{ user.income }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.religion %}
+            <tr>
+                <td>Religion:</td>
+                <td>{{ user.religion }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.politics %}
+            <tr>
+                <td>Political view:</td>
+                <td>{{ user.politics }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.diet %}
+            <tr>
+                <td>Relationship:</td>
+                <td>{{ user.relationship }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.have_kids or user.want_kids %}
+            <tr>
+                <td>Kids:</td>
+                <td>
+                    {% if user.have_kids %}
+                        {{ user.have_kids }}
+                    {% endif %}
+                    {% if user.have_kids and user.want_kids %}
+                        <br/>
+                    {% endif %}
+                    {% if user.want_kids %}
+                        {{ user.want_kids }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endif %}
+
+            {% if user.drink %}
+            <tr>
+                <td>Drinks:</td>
+                <td>{{ user.drink }}</td>
+            </tr>
+            {% endif %}
+
+            {% if user.smoke %}
+            <tr>
+                <td>Smoke:</td>
+                <td>{{ user.smoke }}</td>
+            </tr>
+            {% endif %}
+
+            <tr>
+                <td>Pets:</td>
+                <td>TODO</td>
+            </tr>
+        </table>
     </div>
     <div style="float: left; border: 1px solid black;">
         About Me

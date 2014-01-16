@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ user.nick }}{% endblock %}
+
+{% block content %}
+{% block javascript %}
+<script type="text/javascript">
+    function toggle_stats_form() {
+        $("form#edit_stats").toggle();
+        $("table#curr_stats").toggle();
+
+    }
+
+    function reload_stats_ajax() {
+        $("form#edit_stats").hide();
+        $("input#edit_stats_token").val("{{ csrf_token }}");
+    }
+
+    $(document).ready(function() {
+        $("form#edit_stats").unbind("submit");
+        $("form#edit_stats").submit(function(event) {
+            event.preventDefault();
+            var serialized_data = $(this).serialize();
+            $.ajax({
+                type:"POST",
+                url: $(this).attr("action"),
+                data: serialized_data,
+                dataType: "json",
+                success: function(response){
+                    $("#stats_ajax").html(response.html);
+                    reload_stats_ajax();
+                }
+            });
+            return false;
+        });
+
+        reload_stats_ajax();
+    });
+</script>
+{% endblock %}
+<div style="clear: both;">
+    <h2>My Profile</h2>
+    Picture of {{ user.nick }}<br/>
+    Gender {{ user.gender }}<br/>
+    Orientation {{ user.orientation }}<br/>
+    Age {{ user.age }}<br/>
+    City {{ user.city }}<br/>
+</div>
+<div style="clear: both;">
+    <div style="float: left; width: 500px; border: 1px solid black;" id="stats_ajax">
+        {% include "profile_stats_ajax.html" %}
+    </div>
+    <div style="float: left; border: 1px solid black;">
+        About Me
+    </div>
+</div>
+<div style="clear: both;" />
+{% endblock %}

@@ -1,0 +1,277 @@
+<span style="display: inline: float: left; font-size: 1.5em;">My Details</span>
+<a id="toggle_stats" href="javascript:toggle_stats_form();" style="display: inline;">Edit</a>
+<br/>
+<table id="curr_stats">
+    <tr>
+        <td>Relationship:</td>
+        <td>{{ user.relationship }}</td>
+    </tr>
+
+    <tr>
+        <td>Personality:</td>
+        <td>{{ user.personality }}</td>
+    </tr>
+
+    <tr>
+        <td>Humor:</td>
+        <td>{{ user.humor }}</td>
+    </tr>
+
+    <tr>
+        <td>Ethnicity:</td>
+        <td>{{ user.ethnicity }}</td>
+    </tr>
+
+    <tr>
+        <td>Body type:</td>
+        <td>{{ user.body }}</td>
+    </tr>
+
+    <tr>
+        <td>Height:</td>
+        <td>{{ user.height }}</td>
+    </tr>
+
+    <tr>
+        <td>Education:</td>
+        <td>{{ user.education }}
+            </br>@ {{ user.college }}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Job:</td>
+        <td>{{ user.job }}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Income:</td>
+        <td>{{ user.income }}</td>
+    </tr>
+
+    <tr>
+        <td>Religion:</td>
+        <td>{{ user.religion }}</td>
+    </tr>
+
+    <tr>
+        <td>Political view:</td>
+        <td>{{ user.politics }}</td>
+    </tr>
+
+    <tr>
+        <td>Relationship:</td>
+        <td>{{ user.relationship }}</td>
+    </tr>
+
+    <tr>
+        <td>Kids:</td>
+        <td>
+            {{ user.have_kids }}
+            <br/>
+            {{ user.want_kids }}
+        </td>
+    </tr>
+
+    <tr>
+        <td>Drinks:</td>
+        <td>{{ user.drink }}</td>
+    </tr>
+
+    <tr>
+        <td>Smoke:</td>
+        <td>{{ user.smoke }}</td>
+    </tr>
+
+    <tr>
+        <td>Pets:</td>
+        <td>TODO</td>
+    </tr>
+</table>
+<form id="edit_stats" action="/profile/stats/" method="post">
+    <input id="edit_stats_token" type="hidden" name="csrfmiddlewaretoken" value="" />
+    <table>
+        <tr>
+            <td>Relationship:</td>
+            <td>
+                <select name="relationship">
+                    <option value="" {% if user.relationship == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="never married" {% if user.relationship == "never married" %} selected="selected" {% endif %}>Never married</option>
+                    <option value="separated" {% if user.relationship == "separated" %} selected="selected" {% endif %}>Separated</option>
+                    <option value="divorced" {% if user.relationship == "divorced" %} selected="selected" {% endif %}>Divorced</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Clique: (what were you like in highschool)</td>
+            <td>
+                <select name="personality">
+                    <option value="" {% if user.personality == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="geek" {% if user.personality == "geek" %} selected="selected" {% endif %}>Geek</option>
+                    <option value="jock" {% if user.personality == "jock" %} selected="selected" {% endif %}>Jock</option>
+                    <option value="theater nerd" {% if user.personality == "theater nerd" %} selected="selected" {% endif %}>Theater Nerd</option>
+                    <option value="prepster" {% if user.personality == "prepster" %} selected="selected" {% endif %}>Prepster</option>
+                    <option value="rebel" {% if user.personality == "rebel" %} selected="selected" {% endif %}>Rebel</option>
+                    <option value="slacker" {% if user.personality == "slacker" %} selected="selected" {% endif %}>Slacker</option>
+                    <option value="foreigner" {% if user.personality == "foreigner" %} selected="selected" {% endif %}>Foreigner</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Humor:</td>
+            <td>
+                <select name="humor">
+                    <option value="" {% if user.humor == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="awkward" {% if user.humor == "awkward" %} selected="selected" {% endif %}>Awkward</option>
+                    <option value="self-deprecating" {% if user.humor == "self-deprecating" %} selected="selected" {% endif %}>Self-deprecating</option>
+                    <option value="sarcastic" {% if user.humor == "sarcastic" %} selected="selected" {% endif %}>Sarcastic</option>
+                    <option value="practical" {% if user.humor == "practical" %} selected="selected" {% endif %}>Practical</option>
+                    <option value="geeky" {% if user.humor == "geeky" %} selected="selected" {% endif %}>Geeky</option>
+                </select>
+
+            </td>
+        </tr>
+
+        <tr>
+            <td>Ethnicity:</td>
+            <td>
+                <input type="radio" name="ethnicity" value="asian" {% if user.ethnicity == "asian" %} checked {% endif %}>Asian<br>
+                <input type="radio" name="ethnicity" value="black" {% if user.ethnicity == "black" %} checked {% endif %}>Black<br>
+                <input type="radio" name="ethnicity" value="hispanic",{% if user.ethnicity == "hispanic" %} checked {% endif %}>Hispanic/Latin<br>
+                <input type="radio" name="ethnicity" value="middle eastern" {% if user.ethnicity == "middle eastern" %} checked {% endif %}>Middle Eastern<br>
+                <input type="radio" name="ethnicity" value="native american" {% if user.ethnicity == "native american" %} checked {% endif %}>Native American<br>
+                <input type="radio" name="ethnicity" value="pacific islander" {% if user.ethnicity == "pacific islander" %} checked {% endif %}>Pacific Islander<br>
+                <input type="radio" name="ethnicity" value="white" {% if user.ethnicity == "white" %} checked {% endif %}>White<br>
+                <input type="radio" name="ethnicity" value="other" {% if user.ethnicity == "other" or user.ethnicity == "" %} checked {% endif %}>Other
+            </td>
+        </tr>
+
+        <tr>
+            <td>Body type:</td>
+            <td>
+                <select name="body">
+                    <option value="" {% if user.body == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="slender" {% if user.body == "slender" %} selected="selected" {% endif %}>Slender</option>
+                    <option value="athletic" {% if user.body == "athletic" %} selected="selected" {% endif %}>Athletic</option>
+                    <option value="average" {% if user.body == "average" %} selected="selected" {% endif %}>Average</option>
+                    <option value="above average" {% if user.body == "above average" %} selected="selected" {% endif %}>Above Average</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Height:</td>
+            <td>
+                <select name="height">
+                    <option value="" {% if user.height == "" %} select="selected" {% endif %}>-</option>
+                    <option value="142" {% if user.height == 142 %} select="selected" {% endif %}>4'8'' (142 cm)</option>
+                    <option value="144" {% if user.height == 144 %} select="selected" {% endif %}>4'9'' (144 cm)</option>
+                    <option value="147" {% if user.height == 147 %} select="selected" {% endif %}>4'10'' (147 cm)</option>
+                    <option value="149" {% if user.height == 149 %} select="selected" {% endif %}>4'11'' (149 cm)</option>
+                    <option value="152" {% if user.height == 152 %} select="selected" {% endif %}>5'0'' (152 cm)</option>
+                    <option value="154" {% if user.height == 154 %} select="selected" {% endif %}>5'1'' (154 cm)</option>
+                    <option value="157" {% if user.height == 157 %} select="selected" {% endif %}>5'2'' (157 cm)</option>
+                    <option value="160" {% if user.height == 160 %} select="selected" {% endif %}>5'3'' (160 cm)</option>
+                    <option value="162" {% if user.height == 162 %} select="selected" {% endif %}>5'4'' (162 cm)</option>
+                    <option value="165" {% if user.height == 165 %} select="selected" {% endif %}>5'5'' (165 cm)</option>
+                    <option value="167" {% if user.height == 167 %} select="selected" {% endif %}>5'6'' (167 cm)</option>
+                    <option value="170" {% if user.height == 170 %} select="selected" {% endif %}>5'7'' (170 cm)</option>
+                    <option value="172" {% if user.height == 172 %} select="selected" {% endif %}>5'8'' (172 cm)</option>
+                    <option value="175" {% if user.height == 175 %} select="selected" {% endif %}>5'9'' (175 cm)</option>
+                    <option value="177" {% if user.height == 177 %} select="selected" {% endif %}>5'10'' (177 cm)</option>
+                    <option value="180" {% if user.height == 180 %} select="selected" {% endif %}>5'11'' (180 cm)</option>
+                    <option value="182" {% if user.height == 182 %} select="selected" {% endif %}>6'0'' (182 cm)</option>
+                    <option value="185" {% if user.height == 185 %} select="selected" {% endif %}>6'1'' (185 cm)</option>
+                    <option value="187" {% if user.height == 187 %} select="selected" {% endif %}>6'2'' (187 cm)</option>
+                    <option value="190" {% if user.height == 190 %} select="selected" {% endif %}>6'3'' (190 cm)</option>
+                    <option value="193" {% if user.height == 193 %} select="selected" {% endif %}>6'4'' (193 cm)</option>
+                    <option value="195" {% if user.height == 195 %} select="selected" {% endif %}>6'5'' (195 cm)</option>
+                    <option value="198" {% if user.height == 198 %} select="selected" {% endif %}>6'6'' (198 cm)</option>
+                    <option value="200" {% if user.height == 200 %} select="selected" {% endif %}>6'7'' (200 cm)</option>
+                    <option value="203" {% if user.height == 203 %} select="selected" {% endif %}>6'8'' (203 cm)</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Education:</td>
+            <td>
+                <select name="education">
+                    <option value="" {% if user.education == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="highschool" {% if user.education == "highschool" %} selected="selected" {% endif %}>Highschool</option>
+                    <option value="associates" {% if user.education == "associates" %} selected="selected" {% endif %}>Associates</option>
+                    <option value="university" {% if user.education == "university" %} selected="selected" {% endif %}>University</option>
+                    <option value="masters" {% if user.education == "masters" %} selected="selected" {% endif %}>Masters</option>
+                    <option value="grad school" {% if user.education == "grad school" %} selected="selected" {% endif %}>PhD, Law School, Med School</option>
+                </select>
+
+                </br>@ <input type="text" name="college" value="{{ user.college }}" placeholder="Alma Mater">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Job:</td>
+            <td><input type="text" name="job" value="{{ user.job }}" placeholder="Profession">
+            </td>
+        </tr>
+
+        <tr>
+            <td>Income:</td>
+            <td>
+                <select name="income">
+                    <option value="" {% if not user.income or user.income == 0 %} selected="selected" {% endif %}>-</option>
+                    <option value="20" {% if user.income == 20 %} selected="selected" {% endif %}>20k</option>
+                    <option value="30" {% if user.income == 30 %} selected="selected" {% endif %}>30k</option>
+                    <option value="40" {% if user.income == 40 %} selected="selected" {% endif %}>40k</option>
+                    <option value="50" {% if user.income == 50 %} selected="selected" {% endif %}>50k</option>
+                    <option value="60" {% if user.income == 60 %} selected="selected" {% endif %}>60k</option>
+                    <option value="80" {% if user.income == 80 %} selected="selected" {% endif %}>80k</option>
+                    <option value="100" {% if user.income == 100 %} selected="selected" {% endif %}>100k</option>
+                    <option value="150" {% if user.income == 150 %} selected="selected" {% endif %}>150k</option>
+                    <option value="250" {% if user.income == 250 %} selected="selected" {% endif %}>250k</option>
+                    <option value="500" {% if user.income == 500 %} selected="selected" {% endif %}>500k</option>
+                    <option value="1000" {% if user.income == 1000 %} selected="selected" {% endif %}>1m</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr>
+            <td>Religion:</td>
+            <td>{{ user.religion }}</td>
+        </tr>
+
+        <tr>
+            <td>Political view:</td>
+            <td>{{ user.politics }}</td>
+        </tr>
+
+        <tr>
+            <td>Kids:</td>
+            <td>
+                {{ user.have_kids }}
+                <br/>
+                {{ user.want_kids }}
+            </td>
+        </tr>
+
+        <tr>
+            <td>Drinks:</td>
+            <td>{{ user.drink }}</td>
+        </tr>
+
+        <tr>
+            <td>Smoke:</td>
+            <td>{{ user.smoke }}</td>
+        </tr>
+
+        <tr>
+            <td>Pets:</td>
+            <td>TODO</td>
+        </tr>
+    </table>
+    <button type="submit">Submit</button>
+    <button type="reset">Cancel</button>
+</form>

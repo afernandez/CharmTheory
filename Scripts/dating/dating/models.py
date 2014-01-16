@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import hashlib
 import binascii
 import re
+from datetime import datetime
 
 # Django Imports
 from django.db import models
@@ -44,6 +45,28 @@ class User(models.Model):
     salt = models.BinaryField()
     confirmation = models.CharField(max_length=64)
     active = models.SmallIntegerField()
+    birthday = models.DateField(blank=True, null=True)
+    age = models.IntegerField(blank=True, null=True)
+    country = models.CharField(max_length=45)
+    state = models.CharField(max_length=45)
+    city = models.CharField(max_length=45)
+    relationship = models.CharField(max_length=45)
+    ethnicity = models.CharField(max_length=45)
+    body = models.CharField(max_length=45)
+    height = models.IntegerField(blank=True, null=True)
+    education = models.CharField(max_length=45)
+    college = models.CharField(max_length=128)
+    religion = models.CharField(max_length=45)
+    job = models.CharField(max_length=45)
+    income = models.IntegerField(blank=True, null=True)
+    humor = models.CharField(max_length=45)
+    personality = models.CharField(max_length=45)
+    politics = models.CharField(max_length=45)
+    diet = models.CharField(max_length=45)
+    have_kids = models.CharField(max_length=45)
+    want_kids = models.CharField(max_length=45)
+    drink = models.CharField(max_length=45)
+    smoke = models.CharField(max_length=45)
 
     class Meta:
          db_table = "user"
@@ -136,3 +159,26 @@ class User(models.Model):
             self.save()
             return True
         return False
+
+    def update_stats(self, relationship, personality, humor, ethnicity, body):
+        self.relationship = relationship
+        self.personality = personality
+        self.humor = humor
+        self.ethnicity = ethnicity
+        self.body = body
+        self.save()
+
+    def update_age(self):
+        # Should be called either by a daily process, or whenever a user's page is loaded, or the birthday is updated.
+        if self.birthday:
+            now = datetime.utcnow()
+            age = int((now - self.birthday).days / 365.2425)
+            self.age = age
+            self.save()
+            return True
+        return False
+
+    def update_birthday(self, birthday):
+        self.birthday = birthday
+        self.save()
+        self.upate_age()

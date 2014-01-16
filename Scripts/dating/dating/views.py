@@ -271,8 +271,44 @@ def ack_confirmation(request, nick, confirmation):
 
 @requires_login
 def user(request, nick):
+    if nick.lower() == request.session["nick"].lower():
+        return redirect("/profile")
+
     user = User.get_from_nick(nick)
     data = {}
     if user:
         data = {"user": user}
     return render(request, "user.html", data)
+
+@requires_login
+def profile_stats(request):
+    # This request should only be posting AJAX
+    if request.is_ajax():
+        user = User.get_from_nick(request.session["nick"])
+
+        relationship = request.POST.get("relationship")
+        personality = request.POST.get("personality")
+        humor = request.POST.get("humor")
+        ethnicity = request.POST.get("ethnicity")
+        body = request.POST.get("body")
+
+        user.update_stats(relationship, personality, humor, ethnicity, body)
+        # TODO, add more
+        data = {}
+        if user:
+            data = {"user": user}
+
+        html = render_to_string("profile_stats_ajax.html", data)
+        res = {"html": html}
+        return HttpResponse(json.dumps(res), mimetype='application/json')
+
+    # This code exists as a safety backup in case a GET or POST is ever done
+    return redirect("/profile")
+
+@requires_login
+def profile(request):
+    user = User.get_from_nick(request.session["nick"])
+    data = {}
+    if user:
+        data = {"user": user}
+    return render(request, "profile.html", data)

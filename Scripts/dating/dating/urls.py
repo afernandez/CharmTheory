@@ -11,5 +11,7 @@ urlpatterns = patterns('',
                        url(r'^confirmation/(.+)/(.+)$', 'dating.views.ack_confirmation'),
                        url(r'^confirmation', 'dating.views.confirmation'),
                        url(r'^user/(.+)', 'dating.views.user'),
+                       url(r'^profile/stats', 'dating.views.profile_stats'),    # Edit the stats
+                       url(r'^profile', 'dating.views.profile'),
                        url(r'^admin/', include(admin.site.urls))    # Username: alejandro, Password: alejandro
 )
