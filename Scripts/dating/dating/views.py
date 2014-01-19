@@ -291,9 +291,26 @@ def profile_stats(request):
         humor = request.POST.get("humor")
         ethnicity = request.POST.get("ethnicity")
         body = request.POST.get("body")
+        height = request.POST.get("height")
+        height = int(height) if height and height != "" else 0
+        education = request.POST.get("education")
+        college = request.POST.get("college")
+        job = request.POST.get("job")
+        income = request.POST.get("income")
+        income = int(income) if income and income != "" else 0
+        income = int(income) if income != "" else 0
+        religion = request.POST.get("religion")
+        politics = request.POST.get("politics")
+        have_kids = request.POST.get("have_kids")
+        want_kids = request.POST.get("want_kids")
+        drink = request.POST.get("drink")
+        smoke = request.POST.get("smoke")
+        pet = request.POST.get("pet")
 
-        user.update_stats(relationship, personality, humor, ethnicity, body)
-        # TODO, add more
+        user.update_stats(relationship, personality, humor, ethnicity, body, height, education,
+                          college, job, income, religion, politics, have_kids, want_kids,
+                          drink, smoke, pet)
+
         data = {}
         if user:
             data = {"user": user}

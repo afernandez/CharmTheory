@@ -4,89 +4,196 @@
 <table id="curr_stats">
     <tr>
         <td>Relationship:</td>
-        <td>{{ user.relationship }}</td>
+        <td>
+            {% if user.relationship %}
+                {{ user.relationship|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Personality:</td>
-        <td>{{ user.personality }}</td>
+        <td>
+            {% if user.personality %}
+                {{ user.personality|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Humor:</td>
-        <td>{{ user.humor }}</td>
+        <td>
+            {% if user.humor %}
+                {{ user.humor|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Ethnicity:</td>
-        <td>{{ user.ethnicity }}</td>
+        <td>
+            {% if user.ethnicity %}
+                {{ user.ethnicity|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Body type:</td>
-        <td>{{ user.body }}</td>
+        <td>
+            {% if user.body %}
+                {{ user.body|title }} build
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Height:</td>
-        <td>{{ user.height }}</td>
+        <td>
+            {% if user.height and user.height > 0 %}
+                {{ user.height }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Education:</td>
-        <td>{{ user.education }}
-            </br>@ {{ user.college }}
+        <td>
+            {% if user.education %}
+                {{ user.education|title }}
+            {% else %}
+                -
+            {% endif %}
+            {% if user.college %}
+                @ {{ user.college|title }}
+            {% endif %}
         </td>
     </tr>
 
     <tr>
         <td>Job:</td>
-        <td>{{ user.job }}
+        <td>
+            {% if user.job %}
+                {{ user.job|title }}
+            {% else %}
+                -
+            {% endif %}
         </td>
     </tr>
 
     <tr>
         <td>Income:</td>
-        <td>{{ user.income }}</td>
+        <td>
+            {% if user.income and user.income > 0 %}
+                {% if user.income == 1000 %}
+                    1M
+                {% else %}
+                    {{ user.income }}{% if user.income > 0 %}K{% endif %}
+                {% endif %}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Religion:</td>
-        <td>{{ user.religion }}</td>
+        <td>
+            {% if user.religion %}
+                {{ user.religion|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Political view:</td>
-        <td>{{ user.politics }}</td>
-    </tr>
-
-    <tr>
-        <td>Relationship:</td>
-        <td>{{ user.relationship }}</td>
+        <td>
+            {% if user.politics %}
+                {{ user.politics|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Kids:</td>
         <td>
-            {{ user.have_kids }}
+            Have:
+            {% if user.have_kids == "no" %}
+                No
+            {% elif user.have_kids == "part" %}
+                Yes, and visit me
+            {% elif user.have_kids == "full" %}
+                Yes, and live with me
+            {% elif not user.have_kids %}
+                -
+            {% else %}
+                {{ user.have_kids }}
+            {% endif %}
             <br/>
-            {{ user.want_kids }}
+            Want:
+            {% if user.want_kids == "yes" %}
+                Yes, definitely
+            {% elif user.want_kids == "ok" %}
+                OK if partner has kids
+            {% elif user.want_kids == "maybe" %}
+                Maybe
+            {% elif user.want_kids == "eventually" %}
+                Eventually
+            {% elif not user.want_kids %}
+                -
+            {% else %}
+                {{ user.want_kids }}
+            {% endif %}
         </td>
     </tr>
 
     <tr>
         <td>Drinks:</td>
-        <td>{{ user.drink }}</td>
+        <td>
+            {% if user.drink %}
+                {{ user.drink|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Smoke:</td>
-        <td>{{ user.smoke }}</td>
+        <td>
+            {% if user.smoke %}
+                {{ user.smoke|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 
     <tr>
         <td>Pets:</td>
-        <td>TODO</td>
+        <td>
+            {% if user.pet %}
+                {{ user.pet|title }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
     </tr>
 </table>
 <form id="edit_stats" action="/profile/stats/" method="post">
@@ -105,7 +212,7 @@
         </tr>
 
         <tr>
-            <td>Clique: (what were you like in highschool)</td>
+            <td>Personality:</td>
             <td>
                 <select name="personality">
                     <option value="" {% if user.personality == "" %} selected="selected" {% endif %}>-</option>
@@ -166,7 +273,7 @@
             <td>Height:</td>
             <td>
                 <select name="height">
-                    <option value="" {% if user.height == "" %} select="selected" {% endif %}>-</option>
+                    <option value="" {% if not user.height or user.height == 0 %} select="selected" {% endif %}>-</option>
                     <option value="142" {% if user.height == 142 %} select="selected" {% endif %}>4'8'' (142 cm)</option>
                     <option value="144" {% if user.height == 144 %} select="selected" {% endif %}>4'9'' (144 cm)</option>
                     <option value="147" {% if user.height == 147 %} select="selected" {% endif %}>4'10'' (147 cm)</option>
@@ -205,16 +312,16 @@
                     <option value="associates" {% if user.education == "associates" %} selected="selected" {% endif %}>Associates</option>
                     <option value="university" {% if user.education == "university" %} selected="selected" {% endif %}>University</option>
                     <option value="masters" {% if user.education == "masters" %} selected="selected" {% endif %}>Masters</option>
-                    <option value="grad school" {% if user.education == "grad school" %} selected="selected" {% endif %}>PhD, Law School, Med School</option>
+                    <option value="grad school" {% if user.education == "grad school" %} selected="selected" {% endif %}>Grad School</option>
                 </select>
 
-                </br>@ <input type="text" name="college" value="{{ user.college }}" placeholder="Alma Mater">
+                @ <input type="text" name="college" value="{% if user.college %}{{ user.college }}{% endif %}" placeholder="Alma Mater">
             </td>
         </tr>
 
         <tr>
             <td>Job:</td>
-            <td><input type="text" name="job" value="{{ user.job }}" placeholder="Profession">
+            <td><input type="text" name="job" value="{% if user.job %}{{ user.job }}{% endif %}" placeholder="Profession">
             </td>
         </tr>
 
@@ -222,7 +329,7 @@
             <td>Income:</td>
             <td>
                 <select name="income">
-                    <option value="" {% if not user.income or user.income == 0 %} selected="selected" {% endif %}>-</option>
+                    <option value="0" {% if not user.income or user.income == 0 %} selected="selected" {% endif %}>-</option>
                     <option value="20" {% if user.income == 20 %} selected="selected" {% endif %}>20k</option>
                     <option value="30" {% if user.income == 30 %} selected="selected" {% endif %}>30k</option>
                     <option value="40" {% if user.income == 40 %} selected="selected" {% endif %}>40k</option>
@@ -240,38 +347,100 @@
 
         <tr>
             <td>Religion:</td>
-            <td>{{ user.religion }}</td>
+            <td>
+                <select name="religion">
+                    <option value="" {% if not user.religion or user.religion == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="agnosticism" {% if user.religion == "agnosticism" %} selected="selected" {% endif %}>Agnosticism</option>
+                    <option value="atheism" {% if user.religion == "atheism" %} selected="selected" {% endif %}>Atheism</option>
+                    <option value="buddhism" {% if user.religion == "buddhism" %} selected="selected" {% endif %}>Buddhism</option>
+                    <option value="catholicism" {% if user.religion == "catholicism" %} selected="selected" {% endif %}>Catholicism</option>
+                    <option value="christianity" {% if user.religion == "christianity" %} selected="selected" {% endif %}>Christianity</option>
+                    <option value="judaism" {% if user.religion == "judaism" %} selected="selected" {% endif %}>Judaism</option>
+                    <option value="islam" {% if user.religion == "islam" %} selected="selected" {% endif %}>Islam</option>
+                    <option value="spiritual" {% if user.religion == "spiritual" %} selected="selected" {% endif %}>Spiritual</option>
+                    <option value="other" {% if user.religion == "other" %} selected="selected" {% endif %}>Other</option>
+                </select>
+            </td>
         </tr>
 
         <tr>
             <td>Political view:</td>
-            <td>{{ user.politics }}</td>
+            <td>
+                <select name="politics">
+                    <option value="" {% if not user.politics or user.politics == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="very conservative" {% if user.politics == "very conservative" %} selected="selected" {% endif %}>Very Conservative</option>
+                    <option value="conservative" {% if user.politics == "conservative" %} selected="selected" {% endif %}>Conservative</option>
+                    <option value="middle" {% if user.politics == "middle" %} selected="selected" {% endif %}>Middle</option>
+                    <option value="liberal" {% if user.politics == "liberal" %} selected="selected" {% endif %}>Liberal</option>
+                    <option value="very liberal" {% if user.politics == "very liberal" %} selected="selected" {% endif %}>Very Liberal</option>
+                    <option value="other" {% if user.politics == "other" %} selected="selected" {% endif %}>Other</option>
+                </select>
+            </td>
         </tr>
 
         <tr>
             <td>Kids:</td>
             <td>
-                {{ user.have_kids }}
+                <select name="have_kids">
+                    <option value="" {% if not user.have_kids or user.have_kids == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="no" {% if user.have_kids == "no" %} selected="selected" {% endif %}>Don't have kids</option>
+                    <option value="full" {% if user.have_kids == "full" %} selected="selected" {% endif %}>Have, and live with me</option>
+                    <option value="part" {% if user.have_kids == "part" %} selected="selected" {% endif %}>Have, and visit me</option>
+                </select>
+                and
                 <br/>
-                {{ user.want_kids }}
+                <select name="want_kids">
+                    <option value="" {% if not user.have_kids or user.want_kids == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="yes" {% if user.want_kids == "yes" %} selected="selected" {% endif %}>Want kids</option>
+                    <option value="ok" {% if user.want_kids == "ok" %} selected="selected" {% endif %}>OK if partner has kids</option>
+                    <option value="maybe" {% if user.want_kids == "maybe" %} selected="selected" {% endif %}>Maybe want kids</option>
+                    <option value="eventually" {% if user.want_kids == "eventually" %} selected="selected" {% endif %}>Eventually want kids</option>
+                    <option value="no" {% if user.want_kids == "no" %} selected="selected" {% endif %}>Don't want kids</option>
+                </select>
             </td>
         </tr>
 
         <tr>
-            <td>Drinks:</td>
-            <td>{{ user.drink }}</td>
+            <td>Drink:</td>
+            <td>
+                <select name="drink">
+                    <option value="" {% if not user.drink or user.drink == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="not at all" {% if user.drink == "not at all" %} selected="selected" {% endif %}>Not at all</option>
+                    <option value="rarely" {% if user.drink == "rarely" %} selected="selected" {% endif %}>Rarely</option>
+                    <option value="socially" {% if user.drink == "socially" %} selected="selected" {% endif %}>Socially</option>
+                    <option value="often" {% if user.drink == "often" %} selected="selected" {% endif %}>Often</option>
+                </select>
+            </td>
         </tr>
 
         <tr>
             <td>Smoke:</td>
-            <td>{{ user.smoke }}</td>
+            <td>
+                <select name="smoke">
+                    <option value="" {% if not user.smoke or user.smoke == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="no" {% if user.smoke == "no" %} selected="selected" {% endif %}>No</option>
+                    <option value="sometimes" {% if user.smoke == "sometimes" %} selected="selected" {% endif %}>Sometimes</option>
+                    <option value="trying to quit" {% if user.smoke == "trying to quit" %} selected="selected" {% endif %}>Trying to quit</option>
+                    <option value="yes" {% if user.smoke == "yes" %} selected="selected" {% endif %}>Yes</option>
+                </select>
+            </td>
         </tr>
 
         <tr>
             <td>Pets:</td>
-            <td>TODO</td>
+            <td>
+                <select name="pet">
+                    <option value="" {% if not user.pet or user.pet == "" %} selected="selected" {% endif %}>-</option>
+                    <option value="dog" {% if user.pet == "dog" %} selected="selected" {% endif %}>Dog</option>
+                    <option value="cat" {% if user.pet == "cat" %} selected="selected" {% endif %}>Cat</option>
+                    <option value="bird" {% if user.pet == "bird" %} selected="selected" {% endif %}>Bird</option>
+                    <option value="fish" {% if user.pet == "fish" %} selected="selected" {% endif %}>Fish</option>
+                    <option value="exotic" {% if user.pet == "exotic" %} selected="selected" {% endif %}>Exotic</option>
+                    <option value="farm" {% if user.pet == "farm" %} selected="selected" {% endif %}>Farm</option>
+                </select>
+            </td>
         </tr>
     </table>
-    <button type="submit">Submit</button>
-    <button type="reset">Cancel</button>
+    <button type="submit">Save</button>
+    <button type="reset">Reset</button>
 </form>

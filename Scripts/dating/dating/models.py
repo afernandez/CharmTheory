@@ -160,13 +160,32 @@ class User(models.Model):
             return True
         return False
 
-    def update_stats(self, relationship, personality, humor, ethnicity, body):
+    def update_stats(self, relationship, personality, humor, ethnicity, body, height, education,
+                     college, job, income, religion, politics, have_kids, want_kids,
+                     drink, smoke, pet):
         self.relationship = relationship
         self.personality = personality
         self.humor = humor
         self.ethnicity = ethnicity
         self.body = body
-        self.save()
+        self.height = height
+        self.education = education
+        self.college = college
+        self.job = job
+        self.income = income
+        self.religion = religion
+        self.politics = politics
+        self.have_kids = have_kids
+        self.want_kids = want_kids
+        self.drink = drink
+        self.smoke = smoke
+        self.pet = pet
+
+        try:
+            self.save()
+        except Exception, e:
+            print("Unable to save. %s" % str(e))
+            pass
 
     def update_age(self):
         # Should be called either by a daily process, or whenever a user's page is loaded, or the birthday is updated.
