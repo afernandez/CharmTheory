@@ -1,0 +1,46 @@
+<div id="curr_main">
+{% if user.age %} {{ user.age }} - {% endif %}
+{{ user.gender|title }} and
+{{ user.orientation|title }}
+{% if user.city %} in {{ user.city }} {% endif %}
+</div>
+
+
+
+<form id="edit_main" action="/profile/main/" method="post">
+    <input id="edit_main_token" type="hidden" name="csrfmiddlewaretoken" value="" />
+    Birthday:
+    <select name="month">
+        {% for i,m in months %}
+            <option value="{{ i }}" {% if user.birthday.month == i %} selected="selected" {% endif %}>{{ m }}</option>
+        {% endfor %}
+    </select>
+    <select name="day">
+        {% for d in days %}
+            <option value="{{ d }}" {% if user.birthday.day == d %} selected="selected" {% endif %}>{{ d }}</option>
+        {% endfor %}
+    </select>
+    <select name="year">
+        {% for y in years %}
+            <option value="{{ y }}" {% if user.birthday.year == y %} selected="selected" {% endif %}>{{ y }}</option>
+        {% endfor %}
+    </select>
+    <br/>
+    <select name="gender">
+        <option value="male" {% if user.gender == "male" %} selected="selected" {% endif %}>Male</option>
+        <option value="female" {% if user.gender == "female" %} selected="selected" {% endif %}>Female</option>
+    </select>
+    and
+    <select name="orientation">
+        <option value="straight" {% if user.orientation == "straight" %} selected="selected" {% endif %}>Straight</option>
+        <option value="gay" {% if user.orientation == "gay" %} selected="selected" {% endif %}>Gay</option>
+        <option value="bisexual" {% if user.orientation == "bisexual" %} selected="selected" {% endif %}>Bisexual</option>
+    </select>
+    in
+    <input type="text" name="city" placeholder="City" value="{% if user.city %}{{ user.city }}{% endif %}"/>
+    <br/>
+    <button type="submit">Save</button>
+    <button type="reset">Reset</button>
+</form>
+
+<a id="toggle_main" href="javascript:toggle_main_form();" style="display: inline;">Edit</a>

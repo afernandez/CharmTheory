@@ -4,53 +4,117 @@
 {% block content %}
 {% block javascript %}
 <script type="text/javascript">
+    function toggle_main_form() {
+        $("form#edit_main").toggle();
+        $("div#curr_main").toggle();
+    }
+
     function toggle_stats_form() {
         $("form#edit_stats").toggle();
         $("table#curr_stats").toggle();
+    }
 
+    function reload_main_ajax() {
+        $("form#edit_main").hide();
+        $("input#edit_main_token").val("{{ csrf_token }}");
+        // Have to give it a function pointer so it can calculate a new
+        // value for the serialized data every time.
+        $("form#edit_main").submit(submit_main);
     }
 
     function reload_stats_ajax() {
         $("form#edit_stats").hide();
         $("input#edit_stats_token").val("{{ csrf_token }}");
+        // Have to give it a function pointer so it can calculate a new
+        // value for the serialized data every time.
+        $("form#edit_stats").submit(submit_stats);
+    }
+
+    function submit_main(event) {
+        event.preventDefault();
+        var form = $(this);
+
+        $.ajax({
+            type:"POST",
+            url: form.attr("action"),
+            data: form.serialize(),
+            dataType: "json",
+            success: function(response){
+                $("#main_ajax").html(response.html);
+                reload_main_ajax();
+            }
+        });
+
+        return false;
+    }
+
+    function submit_stats(event) {
+        event.preventDefault();
+        var form = $(this);
+
+        $.ajax({
+            type:"POST",
+            url: form.attr("action"),
+            data: form.serialize(),
+            dataType: "json",
+            success: function(response){
+                $("#stats_ajax").html(response.html);
+                reload_stats_ajax();
+            }
+        });
+
+        return false;
+    }
+
+    // Meant to be called on the essay textarea objects whose parent is the original div
+    function save_essay(obj) {
+        var id = obj.attr("id");
+        var value = obj.val();
+        var div = obj.parent("div");
+
+        div.html(value);
+        // Rebind the click function to allow editing the text area
+        div.click(function() {
+            allow_edit_essay(div);
+        });
+    }
+
+    // Meant to be called on div.essay object
+    function allow_edit_essay(obj) {
+        obj.unbind("click");
+        var info = obj.html().replace(/^\s+|\s+$/g,'');
+        var id = obj.attr("id");
+
+        var new_info_id = "edit_" + id;
+        var new_info = "<textarea id='" + new_info_id + "' rows='5' cols='60' onblur='save_essay($(this))' onmouseup='save_essay($(this))'></textarea>";
+        obj.html(new_info);
+        // The info is set here after giving the object the focus in order to set the mouse pointer to the end.
+        $("textarea#" + new_info_id).focus().val(info);
     }
 
     $(document).ready(function() {
-        $("form#edit_stats").unbind("submit");
-        $("form#edit_stats").submit(function(event) {
-            event.preventDefault();
-            var serialized_data = $(this).serialize();
-            $.ajax({
-                type:"POST",
-                url: $(this).attr("action"),
-                data: serialized_data,
-                dataType: "json",
-                success: function(response){
-                    $("#stats_ajax").html(response.html);
-                    reload_stats_ajax();
-                }
-            });
-            return false;
-        });
-
+        reload_main_ajax();
         reload_stats_ajax();
+
+        $("div.essay").click(function() {
+            // Call a function to unbind the click event and allow editing the text area.
+            allow_edit_essay($(this));
+        });
     });
 </script>
 {% endblock %}
 <div style="clear: both;">
-    <h2>My Profile</h2>
-    Picture of {{ user.nick }}<br/>
-    Gender {{ user.gender }}<br/>
-    Orientation {{ user.orientation }}<br/>
-    Age {{ user.age }}<br/>
-    City {{ user.city }}<br/>
+    <h2>{{ user.nick }}</h2>
+    <div id="main_ajax">
+        {% include "profile_main_ajax.html" %}
+    </div>
 </div>
 <div style="clear: both;">
     <div style="float: left; width: 400px; border: 1px solid black;" id="stats_ajax">
         {% include "profile_stats_ajax.html" %}
     </div>
-    <div style="float: left; border: 1px solid black;">
-        About Me
+    <div style="float: left; border: 1px solid black; width: 550px; padding: 10px;">
+        {% include "profile_essay_ajax.html" %}
     </div>
 </div>
 <div style="clear: both;" />

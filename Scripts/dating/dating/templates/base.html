@@ -11,7 +11,7 @@
 <body>
     {% include "includes/nav.html" %}
     {% if request.session.nick %}
-        Logged in as {{ request.session.nick }} | <a href="/logout">Log out</a>
+        Logged in as {{ request.session.nick }} | <a href="/profile">Profile</a> | <a href="/logout">Log out</a>
     {% else %}
         <a href="/login">Log in</a> | <a href="/signup">Sign Up</a>
     {% endif %}

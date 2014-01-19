@@ -13,6 +13,7 @@ import hashlib
 import binascii
 import re
 from datetime import datetime
+import calendar
 
 # Django Imports
 from django.db import models
@@ -160,6 +161,16 @@ class User(models.Model):
             return True
         return False
 
+    def update_main(self, gender, orientation, city):
+        self.gender = gender
+        self.orientation = orientation
+        self.city = city
+        try:
+            self.save()
+        except Exception, e:
+            print("Unable to save. %s" % str(e))
+            pass
+
     def update_stats(self, relationship, personality, humor, ethnicity, body, height, education,
                      college, job, income, religion, politics, have_kids, want_kids,
                      drink, smoke, pet):
@@ -191,13 +202,76 @@ class User(models.Model):
         # Should be called either by a daily process, or whenever a user's page is loaded, or the birthday is updated.
         if self.birthday:
             now = datetime.utcnow()
-            age = int((now - self.birthday).days / 365.2425)
+            age = int((now.date() - self.birthday).days / 365.2425)
             self.age = age
             self.save()
             return True
         return False
 
     def update_birthday(self, birthday):
-        self.birthday = birthday
-        self.save()
-        self.upate_age()
+        now = datetime.utcnow()
+        if birthday < now.date():
+            self.birthday = birthday
+            self.save()
+            self.update_age()
+
+    @classmethod
+    def get_years(cls):
+        years = range(datetime.now().year - 60, datetime.now().year)
+        years = years[::-1]
+        return years
+
+    @classmethod
+    def get_months(cls):
+        # Tuple
+        months = []
+        for i in range(1, 13):
+            months.append((i, calendar.month_name[i]))
+        return months
+
+    @classmethod
+    def get_days(cls):
+        return range(1, 32)
+
+    def story(self):
+        try:
+            return self.essays.filter(title="story")[0].info
+        except IndexError:
+            return ""
+
+    def goals(self):
+        try:
+            return self.essays.filter(title="goals")[0].info
+        except IndexError:
+            return ""
+
+    def talents(self):
+        try:
+            return self.essays.filter(title="talents")[0].info
+        except IndexError:
+            return ""
+
+    def likes(self):
+        try:
+            return self.essays.filter(title="likes")[0].info
+        except IndexError:
+                return ""
+
+    def message_me_if(self):
+        try:
+            return self.essays.filter(title="message_me_if")[0].info
+        except IndexError:
+            return ""
+
+
+class UserEssay(models.Model):
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=128)
+    info = models.CharField(max_length=1024)
+    user = models.ForeignKey(User, related_name="essays", on_delete=models.CASCADE)
+
+    class Meta:
+         db_table = "user_essay"
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.title, self.info)

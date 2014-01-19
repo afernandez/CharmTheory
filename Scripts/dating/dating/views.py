@@ -8,7 +8,7 @@ from django.http import HttpResponse, Http404
 import hashlib
 import uuid
 import binascii
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 # Django Imports
 from django.http import HttpResponse
@@ -135,7 +135,7 @@ def signup(request):
         data = {"valid_nick": valid_nick, "nick": nick}
         html = render_to_string("signup_ajax.html", data)
         res = {"html": html}
-        return HttpResponse(json.dumps(res), mimetype='application/json')
+        return HttpResponse(json.dumps(res), content_type='application/json')
 
     if request.method == "GET":
         return render(request, "signup.html")
@@ -252,7 +252,7 @@ def confirmation(request):
         data = {"last_confirmation_time": last_confirmation_time}
         html = render_to_string("confirmation_ajax.html", data)
         res = {"html": html}
-        return HttpResponse(json.dumps(res), mimetype='application/json')
+        return HttpResponse(json.dumps(res), content_type='application/json')
 
     if request.method == "GET":
         return render(request, "confirmation.html")
@@ -279,6 +279,46 @@ def user(request, nick):
     if user:
         data = {"user": user}
     return render(request, "user.html", data)
+
+@requires_login
+def profile_main(request):
+    # This request should only be posting AJAX
+    if request.is_ajax():
+        user = User.get_from_nick(request.session["nick"])
+
+        gender = request.POST.get("gender")
+        orientation = request.POST.get("orientation")
+        city = request.POST.get("city")
+        print("%s. Gender: %s, Orientation: %s, City: %s" % (str(datetime.now()), str(gender), str(orientation), str(city)))
+
+        year = request.POST.get("year")
+        month = request.POST.get("month")
+        day = request.POST.get("day")
+
+        year = int(year) if year and year != "" else 0
+        month = int(month) if month and month != "" else 0
+        day = int(day) if day and day != "" else 0
+
+        data = {}
+        if user:
+            user.update_main(gender, orientation, city)
+
+            if year > 0 and month > 0 and day > 0:
+                birthday = date(year, month, day)
+                user.update_birthday(birthday)
+
+            data = {"user": user}
+
+        data["years"] = User.get_years()
+        data["months"] = User.get_months()
+        data["days"] = User.get_days()
+
+        html = render_to_string("profile_main_ajax.html", data)
+        res = {"html": html}
+        return HttpResponse(json.dumps(res), content_type='application/json')
+
+    # This code exists as a safety backup in case a GET or POST is ever done
+    return redirect("/profile")
 
 @requires_login
 def profile_stats(request):
@@ -317,7 +357,7 @@ def profile_stats(request):
 
         html = render_to_string("profile_stats_ajax.html", data)
         res = {"html": html}
-        return HttpResponse(json.dumps(res), mimetype='application/json')
+        return HttpResponse(json.dumps(res), content_type='application/json')
 
     # This code exists as a safety backup in case a GET or POST is ever done
     return redirect("/profile")
@@ -328,4 +368,8 @@ def profile(request):
     data = {}
     if user:
         data = {"user": user}
+
+    data["years"] = User.get_years()
+    data["months"] = User.get_months()
+    data["days"] = User.get_days()
     return render(request, "profile.html", data)
