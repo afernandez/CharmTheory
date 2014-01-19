@@ -233,6 +233,30 @@ class User(models.Model):
     def get_days(cls):
         return range(1, 32)
 
+    def set_essay(self, title, info):
+        """
+        @return: Returns True if the essay was saved, otherwise, False.
+        """
+        if title and title != "":
+            found = self.essays.filter(title=title).all()
+            if not found or len(found) == 0:
+                # Create a new one, provided that the value is non-empty
+                if info and info != "":
+                    user_essay = UserEssay.create(self.id, title, info)
+                    return True
+            elif found and len(found) == 1:
+                try:
+                    found[0].info = info        # Could be clearing the value
+                    found[0].save()
+                except Exception, e:
+                    print("Error. %s" % str(e))
+                    return False
+                return True
+            else:
+                print("Error, found multiple essays for the title")
+
+        return False
+
     def story(self):
         try:
             return self.essays.filter(title="story")[0].info
@@ -266,8 +290,8 @@ class User(models.Model):
 
 class UserEssay(models.Model):
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=128)
-    info = models.CharField(max_length=1024)
+    title = models.CharField(max_length=256)
+    info = models.CharField(max_length=2048)
     user = models.ForeignKey(User, related_name="essays", on_delete=models.CASCADE)
 
     class Meta:
@@ -275,3 +299,16 @@ class UserEssay(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.title, self.info)
+
+
+    @classmethod
+    def create(cls, user_id, title, info):
+        """
+        @param user_id: Foreign key to user
+        @param title: Field name, e.g., story, goals, talents
+        @param info: Actual value
+        """
+        user_essay = UserEssay(user_id=user_id, title=title, info=info)
+        user_essay.save()
+
+        return user_essay

@@ -11,6 +11,8 @@
     min-height: 25px;
     min-width: 100px;
     max-width: 1000px;
+    width: 100%;
+    padding: 0px;
 }
 
 div.essay:hover {
@@ -20,5 +22,5 @@ div.essay:hover {
 }
 
 div.essay textarea {
-    width: 100%;
+    margin: 0px;
 }

@@ -13,6 +13,7 @@ urlpatterns = patterns('',
                        url(r'^user/(.+)', 'dating.views.user'),
                        url(r'^profile/main', 'dating.views.profile_main'),      # Edit main profile settings
                        url(r'^profile/stats', 'dating.views.profile_stats'),    # Edit the stats
+                       url(r'^profile/essay', 'dating.views.profile_essay'),    # Edit the essays
                        url(r'^profile', 'dating.views.profile'),
                        url(r'^admin/', include(admin.site.urls))    # Username: alejandro, Password: alejandro
 )

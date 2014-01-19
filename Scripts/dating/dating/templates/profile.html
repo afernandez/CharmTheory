@@ -30,6 +30,16 @@
         $("form#edit_stats").submit(submit_stats);
     }
 
+    function reload_essay_ajax() {
+        $("input#edit_essay_token").val("{{ csrf_token }}");
+        $("div.essay").click(function() {
+            // Call a function to unbind the click event and allow editing the text area.
+            allow_edit_essay($(this));
+        });
+
+        $("form#edit_essay").submit(submit_essay);
+    }
+
     function submit_main(event) {
         event.preventDefault();
         var form = $(this);
@@ -66,10 +76,28 @@
         return false;
     }
 
+    function submit_essay(event) {
+        event.preventDefault();
+        var form = $(this);
+
+        $.ajax({
+            type:"POST",
+            url: form.attr("action"),
+            data: form.serialize(),
+            dataType: "json",
+            success: function(response){
+                $("#essay_ajax").html(response.html);
+                reload_essay_ajax();
+            }
+        });
+
+        return false;
+    }
+
     // Meant to be called on the essay textarea objects whose parent is the original div
     function save_essay(obj) {
-        var id = obj.attr("id");
         var value = obj.val();
+        value = value.replace(/\r?\n/g, '<br>');
         var div = obj.parent("div");
 
         div.html(value);
@@ -77,29 +105,37 @@
         div.click(function() {
             allow_edit_essay(div);
         });
+
+        var title = div.attr("id");
+        $("form#edit_essay input#essay_title").attr("value", title);
+        $("form#edit_essay input#essay_info").attr("value", value);
+
+        // Submit the form
+        $("form#edit_essay").submit();
     }
 
     // Meant to be called on div.essay object
     function allow_edit_essay(obj) {
         obj.unbind("click");
         var info = obj.html().replace(/^\s+|\s+$/g,'');
+        info = info.replace(/<br>/g,'\r\n');
         var id = obj.attr("id");
 
         var new_info_id = "edit_" + id;
-        var new_info = "<textarea id='" + new_info_id + "' rows='5' cols='60' onblur='save_essay($(this))' onmouseup='save_essay($(this))'></textarea>";
+        var new_info = "<textarea id='" + new_info_id + "' rows='5' cols='60' ></textarea>";
         obj.html(new_info);
+
         // The info is set here after giving the object the focus in order to set the mouse pointer to the end.
         $("textarea#" + new_info_id).focus().val(info);
+        $("textarea#" + new_info_id).blur(function() {
+            save_essay($(this));
+        });
     }
 
     $(document).ready(function() {
         reload_main_ajax();
         reload_stats_ajax();
-
-        $("div.essay").click(function() {
-            // Call a function to unbind the click event and allow editing the text area.
-            allow_edit_essay($(this));
-        });
+        reload_essay_ajax();
     });
 </script>
 {% endblock %}
@@ -109,11 +145,11 @@
         {% include "profile_main_ajax.html" %}
     </div>
 </div>
-<div style="clear: both;">
+<div style="clear: both; width: 100%;">
     <div style="float: left; width: 400px; border: 1px solid black;" id="stats_ajax">
         {% include "profile_stats_ajax.html" %}
     </div>
-    <div style="float: left; border: 1px solid black; width: 550px; padding: 10px;">
+    <div style="float: left; border: 1px solid black; min-width: 500px; padding: 10px;" id="essay_ajax">
         {% include "profile_essay_ajax.html" %}
     </div>
 </div>

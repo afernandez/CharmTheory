@@ -1,33 +1,33 @@
 <div id="curr_info">
         <h2>My Story</h2>
         <div class="essay" id="story">
-            {{ user.story }}
+            {% autoescape off %}{{ user.story }}{% endautoescape %}
         </div>
 
         <h2>Likes</h2>
         <div class="essay" id="likes">
-            {{ user.likes }}
+            {% autoescape off %}{{ user.likes }}{% endautoescape %}
         </div>
 
         <h2>Goals</h2>
         <div class="essay" id="goals">
-            {{ user.goals }}
+            {% autoescape off %}{{ user.goals }}{% endautoescape %}
         </div>
 
-        <h2>Secret Talents</h2>
+        <h2>Talents</h2>
         <div class="essay" id="talents">
-            {{ user.talents }}
+            {% autoescape off %}{{ user.talents }}{% endautoescape %}
         </div>
 
         <h2>Message me if ...</h2>
         <div class="essay" id="message_me_if">
-            {{ user.message_me_if }}
+            {% autoescape off %}{{ user.message_me_if }}{% endautoescape %}
         </div>
 </div>
 
 
-<form id="edit_essay" action="/profile/essay/" method="post" style="display: none;">
-    <input id="edit_essay_token" type="hidden" name="csrfmiddlewaretoken" value="" />
-    <input type="hidden" name="title" value="" />
-    <input type="hidden" name="info" value="" />
+<form id="edit_essay" action="/profile/essay/" method="post">
+    <input type="hidden" id="edit_essay_token" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+    <input type="hidden" id="essay_title" name="title" value="" />
+    <input type="hidden" id="essay_info" name="info" value="" />
 </form>

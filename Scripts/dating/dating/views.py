@@ -363,6 +363,27 @@ def profile_stats(request):
     return redirect("/profile")
 
 @requires_login
+def profile_essay(request):
+    # This request should only be posting AJAX
+    if request.is_ajax():
+        user = User.get_from_nick(request.session["nick"])
+
+        title = request.POST.get("title")
+        info = request.POST.get("info")
+
+        data = {}
+        if user:
+            user.set_essay(title, info)
+            data = {"user": user}
+
+        html = render_to_string("profile_essay_ajax.html", data)
+        res = {"html": html}
+        return HttpResponse(json.dumps(res), content_type='application/json')
+
+    # This code exists as a safety backup in case a GET or POST is ever done
+    return redirect("/profile")
+
+@requires_login
 def profile(request):
     user = User.get_from_nick(request.session["nick"])
     data = {}
