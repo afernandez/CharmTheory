@@ -61,7 +61,7 @@
         <td>Height:</td>
         <td>
             {% if user.height and user.height > 0 %}
-                {{ user.height }}
+                {{ user.height_in_english }} ({{ user.height }} cm)
             {% else %}
                 -
             {% endif %}
@@ -273,32 +273,32 @@
             <td>Height:</td>
             <td>
                 <select name="height">
-                    <option value="" {% if not user.height or user.height == 0 %} select="selected" {% endif %}>-</option>
-                    <option value="142" {% if user.height == 142 %} select="selected" {% endif %}>4'8'' (142 cm)</option>
-                    <option value="144" {% if user.height == 144 %} select="selected" {% endif %}>4'9'' (144 cm)</option>
-                    <option value="147" {% if user.height == 147 %} select="selected" {% endif %}>4'10'' (147 cm)</option>
-                    <option value="149" {% if user.height == 149 %} select="selected" {% endif %}>4'11'' (149 cm)</option>
-                    <option value="152" {% if user.height == 152 %} select="selected" {% endif %}>5'0'' (152 cm)</option>
-                    <option value="154" {% if user.height == 154 %} select="selected" {% endif %}>5'1'' (154 cm)</option>
-                    <option value="157" {% if user.height == 157 %} select="selected" {% endif %}>5'2'' (157 cm)</option>
-                    <option value="160" {% if user.height == 160 %} select="selected" {% endif %}>5'3'' (160 cm)</option>
-                    <option value="162" {% if user.height == 162 %} select="selected" {% endif %}>5'4'' (162 cm)</option>
-                    <option value="165" {% if user.height == 165 %} select="selected" {% endif %}>5'5'' (165 cm)</option>
-                    <option value="167" {% if user.height == 167 %} select="selected" {% endif %}>5'6'' (167 cm)</option>
-                    <option value="170" {% if user.height == 170 %} select="selected" {% endif %}>5'7'' (170 cm)</option>
-                    <option value="172" {% if user.height == 172 %} select="selected" {% endif %}>5'8'' (172 cm)</option>
-                    <option value="175" {% if user.height == 175 %} select="selected" {% endif %}>5'9'' (175 cm)</option>
-                    <option value="177" {% if user.height == 177 %} select="selected" {% endif %}>5'10'' (177 cm)</option>
-                    <option value="180" {% if user.height == 180 %} select="selected" {% endif %}>5'11'' (180 cm)</option>
-                    <option value="182" {% if user.height == 182 %} select="selected" {% endif %}>6'0'' (182 cm)</option>
-                    <option value="185" {% if user.height == 185 %} select="selected" {% endif %}>6'1'' (185 cm)</option>
-                    <option value="187" {% if user.height == 187 %} select="selected" {% endif %}>6'2'' (187 cm)</option>
-                    <option value="190" {% if user.height == 190 %} select="selected" {% endif %}>6'3'' (190 cm)</option>
-                    <option value="193" {% if user.height == 193 %} select="selected" {% endif %}>6'4'' (193 cm)</option>
-                    <option value="195" {% if user.height == 195 %} select="selected" {% endif %}>6'5'' (195 cm)</option>
-                    <option value="198" {% if user.height == 198 %} select="selected" {% endif %}>6'6'' (198 cm)</option>
-                    <option value="200" {% if user.height == 200 %} select="selected" {% endif %}>6'7'' (200 cm)</option>
-                    <option value="203" {% if user.height == 203 %} select="selected" {% endif %}>6'8'' (203 cm)</option>
+                    <option value="" {% if not user.height or user.height == 0 %} selected="selected" {% endif %}>-</option>
+                    <option value="142" {% if user.height == 142 %} selected="selected" {% endif %}>4'8'' (142 cm)</option>
+                    <option value="144" {% if user.height == 144 %} selected="selected" {% endif %}>4'9'' (144 cm)</option>
+                    <option value="147" {% if user.height == 147 %} selected="selected" {% endif %}>4'10'' (147 cm)</option>
+                    <option value="149" {% if user.height == 149 %} selected="selected" {% endif %}>4'11'' (149 cm)</option>
+                    <option value="152" {% if user.height == 152 %} selected="selected" {% endif %}>5'0'' (152 cm)</option>
+                    <option value="154" {% if user.height == 154 %} selected="selected" {% endif %}>5'1'' (154 cm)</option>
+                    <option value="157" {% if user.height == 157 %} selected="selected" {% endif %}>5'2'' (157 cm)</option>
+                    <option value="160" {% if user.height == 160 %} selected="selected" {% endif %}>5'3'' (160 cm)</option>
+                    <option value="162" {% if user.height == 162 %} selected="selected" {% endif %}>5'4'' (162 cm)</option>
+                    <option value="165" {% if user.height == 165 %} selected="selected" {% endif %}>5'5'' (165 cm)</option>
+                    <option value="167" {% if user.height == 167 %} selected="selected" {% endif %}>5'6'' (167 cm)</option>
+                    <option value="170" {% if user.height == 170 %} selected="selected" {% endif %}>5'7'' (170 cm)</option>
+                    <option value="172" {% if user.height == 172 %} selected="selected" {% endif %}>5'8'' (172 cm)</option>
+                    <option value="175" {% if user.height == 175 %} selected="selected" {% endif %}>5'9'' (175 cm)</option>
+                    <option value="177" {% if user.height == 177 %} selected="selected" {% endif %}>5'10'' (177 cm)</option>
+                    <option value="180" {% if user.height == 180 %} selected="selected" {% endif %}>5'11'' (180 cm)</option>
+                    <option value="182" {% if user.height == 182 %} selected="selected" {% endif %}>6'0'' (182 cm)</option>
+                    <option value="185" {% if user.height == 185 %} selected="selected" {% endif %}>6'1'' (185 cm)</option>
+                    <option value="187" {% if user.height == 187 %} selected="selected" {% endif %}>6'2'' (187 cm)</option>
+                    <option value="190" {% if user.height == 190 %} selected="selected" {% endif %}>6'3'' (190 cm)</option>
+                    <option value="193" {% if user.height == 193 %} selected="selected" {% endif %}>6'4'' (193 cm)</option>
+                    <option value="195" {% if user.height == 195 %} selected="selected" {% endif %}>6'5'' (195 cm)</option>
+                    <option value="198" {% if user.height == 198 %} selected="selected" {% endif %}>6'6'' (198 cm)</option>
+                    <option value="200" {% if user.height == 200 %} selected="selected" {% endif %}>6'7'' (200 cm)</option>
+                    <option value="203" {% if user.height == 203 %} selected="selected" {% endif %}>6'8'' (203 cm)</option>
                 </select>
             </td>
         </tr>

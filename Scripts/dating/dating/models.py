@@ -14,6 +14,7 @@ import binascii
 import re
 from datetime import datetime
 import calendar
+import math
 
 # Django Imports
 from django.db import models
@@ -256,6 +257,14 @@ class User(models.Model):
                 print("Error, found multiple essays for the title")
 
         return False
+
+    def height_in_english(self):
+        if self.height and self.height > 0:
+            inches = int(math.ceil(self.height * 0.393701))
+            rem_inches = inches % 12
+            feet = int((inches - rem_inches) / 12)
+            return "%d' %d''" % (feet, rem_inches)
+        return None
 
     def story(self):
         try:
