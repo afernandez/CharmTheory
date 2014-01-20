@@ -287,6 +287,13 @@ class User(models.Model):
         except IndexError:
             return ""
 
+    def main_photo(self):
+        node = "01"
+        volume = "01"
+        image = "dec2b092a63342d6a55e3810b9908d9f"
+        size_ext = "m.jpeg"
+        return "/".join(["", "static", "photo", "node" + node, "volume" + volume, image, size_ext])
+
 
 class UserEssay(models.Model):
     id = models.AutoField(primary_key=True)

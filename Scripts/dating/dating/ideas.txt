@@ -69,3 +69,29 @@ Drugs: Never, Sometimes, Often
  
 Pets: Has, Likes, Dislikes X Cat, Dog
 Language: Fluent, OK X ...
+
+
+Description
+
+For Fun:
+
+Goals:
+
+Family:
+
+Work:
+
+Secret talent:
+
+Looking for, Message Me If
+
+user to photos
+primary flag
+start x, start y, end x, end y
+hash (64 bit)
+filter color
+URL, with CDN/cache/node/volume/image/size
+
+https://www.usenix.org/legacy/events/osdi10/tech/full_papers/Beaver.pdf
+100 GB of storage per volume (in like a single 10TB drive to generate 100 volumes)
+allow redundancy.e.g., volume 1 is physical volumes 1-3, 

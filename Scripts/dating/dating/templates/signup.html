@@ -160,8 +160,8 @@
                     <option value="male" {% if gender == "male" %} selected="selected" {% endif %}>Guy</option>
                 </select>
                 <div style="display: inline; top: 20px; position: relative;">
-                    <img src="/static/images/woman.gif" class="female gender" />
-                    <img src="/static/images/man.gif" class="male gender" />
+                    <img src="{{ STATIC_URL }}images/woman.gif" class="female gender" />
+                    <img src="{{ STATIC_URL }}images/man.gif" class="male gender" />
                 </div>
                 and
                 <select id="orientation" name="orientation" class="required red_on_empty">
@@ -171,9 +171,9 @@
                 </select>
                 so I want to find
                 <div style="display: inline; top: 20px; position: relative;">
-                    <img src="/static/images/men.gif" class="men partner" />
-                    <img src="/static/images/women.gif" class="women partner" />
-                    <img src="/static/images/both.gif" class="both partner" />
+                    <img src="{{ STATIC_URL }}images/men.gif" class="men partner" />
+                    <img src="{{ STATIC_URL }}images/women.gif" class="women partner" />
+                    <img src="{{ STATIC_URL }}images/both.gif" class="both partner" />
                 </div>
             </td>
         </tr>

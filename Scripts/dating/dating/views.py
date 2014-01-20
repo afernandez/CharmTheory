@@ -394,3 +394,9 @@ def profile(request):
     data["months"] = User.get_months()
     data["days"] = User.get_days()
     return render(request, "profile.html", data)
+
+def photo(request, cdn, cache, node, volume, image, size_ext):
+    # E.g., http://localhost:8000/photo/a/b/c/01/01/dec2b092a63342d6a55e3810b9908d9f/m.jpeg
+    path = "/".join(["", "static", "photo", "node" + node, "volume" + volume, image, size_ext])
+    html = '<img src="%s" />' % (path)
+    return HttpResponse(html)
