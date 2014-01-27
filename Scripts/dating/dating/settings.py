@@ -100,3 +100,4 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'dating', 'static')
 LOGIN_URL = '/login/'
 MEDIA_ROOT = os.path.join(STATIC_ROOT, 'dropbox')
+TMP_MEDIA_ROOT = os.path.join(BASE_DIR, 'dating', 'tmp_image') # Temporary folder for checking images before uploading to Dropbox

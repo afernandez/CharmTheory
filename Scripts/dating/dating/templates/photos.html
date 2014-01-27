@@ -30,11 +30,15 @@
 {% endblock %}
 <div style="clear: both;">
     <h2>{{ user.nick }}</h2>
+
     <div id="customize_ajax">
+        {% if error %}
+            <span style="color: red;">{{ error }}</span>
+        {% endif %}
+
         {% if new_photo %}
             <div id="new_photo">
-                New photo goes here...
-                {{ new_photo }}
+                Successfully added photo. Try scaling it.
             </div>
         {% else %}
             <a href="#" onclick="javascript:upload_pic(event);">Add</a>

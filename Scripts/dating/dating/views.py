@@ -421,11 +421,11 @@ def upload_photo(request):
             if user.get_photo_with_name(filename):
                 data["error"] = "A photo with that name already exists."
             else:
-                photo = user.add_photo(filename, file)
+                photo, error = user.add_photo(filename, file)
                 if photo:
                     data["new_photo"] = filename
                 else:
-                    data["error"] = "Try uploading the photo again."
+                    data["error"] = error
     return render(request, "photos.html", data)
 
 @requires_login

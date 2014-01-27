@@ -16,6 +16,7 @@ from datetime import datetime
 import calendar
 import math
 import os
+import shutil
 
 # Django Imports
 from django.db import models
@@ -23,9 +24,10 @@ from django.conf import settings
 
 # Local Imports
 from util import get_file_size_bytes, get_file_md5
+from dating.exceptions import ImageDimensionException
 
 # Third Party Imports
-
+from PIL import Image
 
 '''
 Useful constructs
@@ -315,13 +317,20 @@ class User(models.Model):
             return None
 
     def main_photo(self):
-        node = "01"
-        volume = "01"
-        image = "dec2b092a63342d6a55e3810b9908d9f"
-        size_ext = "m.jpeg"
-        return "/".join(["", "static", "photo", "node" + node, "volume" + volume, image, size_ext])
+        photos = self.photos.filter(primary=1).all()
+
+        if photos and len(photos) == 1:
+            photo = photos[0]
+            return photo.rel_path()
+
+        picture = "man_face.gif" if self.gender == "male" else "woman_face.gif"
+        return "/".join(["", "static", "images", picture])
 
     def add_photo(self, name, image):
+        """
+        @return: Returns a tuple with the new Image, and an error message.
+        If an error exists, the Image is none.
+        """
         return UserPhoto.create(self.id, name, image)
 
     def delete_photo(self, name):
@@ -355,7 +364,6 @@ class UserEssay(models.Model):
 
         return user_essay
 
-
 class UserPhoto(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=128)
@@ -385,35 +393,70 @@ class UserPhoto(models.Model):
         if user:
             primary = False if (user.photos.all() and len(user.photos.all()) > 0) else True
 
-            root = os.path.join(settings.MEDIA_ROOT, "users", user.nick)
-            if not os.path.exists(root):
-                os.makedirs(root)
-            path = os.path.join(root, name)
+            tmp_root = os.path.join(settings.TMP_MEDIA_ROOT, "users", user.nick)
+            if not os.path.exists(tmp_root):
+                os.makedirs(tmp_root)
+            tmp_path = os.path.join(tmp_root, name)
 
-            # TODO, what if the photo already exists in that location
             fd = None
             try:
-                fd = open(path, "wb")
+                fd = open(tmp_path, "wb")
                 for chunk in image.chunks():
                     fd.write(chunk)
             except IOError:
-                pass
+                return None, "Unable to save image"
             finally:
                 if fd:
                     fd.close()
 
-            hash_md5 = get_file_md5(path)
-            size = get_file_size_bytes(path)
+            try:
+                img = Image.open(tmp_path)
+                width, height = img.size
+                # Must garbage collect once done using in order to be able to delete
+                del img
 
-            # TODO, check file dimension
+                print("Width: %d, Height: %d" % (width, height))
+                if width < 250 or height < 250:
+                    raise ImageDimensionException("Dimensions are too small")
 
-            # TODO, what if the user has a photo with the same size and hash?
+                # TODO, perform scaling.
 
-            photo = UserPhoto(user_id=user_id, name=name, path=path, primary=primary, bytes=size, size="regular",
-                              hash_md5=hash_md5)
-            photo.save()
-            return photo
-        return None
+                hash_md5 = get_file_md5(tmp_path)
+                size = get_file_size_bytes(tmp_path)
+
+                # TODO, what if the user has a photo with the same size and hash?
+
+                # Copy the image from the temp folder to the final folder
+                root = os.path.join(settings.MEDIA_ROOT, "users", user.nick)
+                if not os.path.exists(root):
+                    os.makedirs(root)
+                path = os.path.join(root, name)
+                shutil.copy2(tmp_path, path)
+
+                photo = UserPhoto(user_id=user_id, name=name, path=path, primary=primary, bytes=size, size="regular",
+                                  hash_md5=hash_md5)
+                photo.save()
+                return photo, ""
+            except Exception, err:
+                print("Original exception: %s" % str(err))
+                error = "Unable to save image"
+
+                if type(err).__name__ == ImageDimensionException.__name__:
+                    print("Dimensions are too small")
+                    error = err
+                return None, error
+            finally:
+                # Attempt to delete the temporary image and user directory
+                try:
+                    if os.path.isfile(tmp_path):
+                        os.remove(tmp_path)
+
+                    if os.path.isdir(os.path.dirname(tmp_path)):
+                        shutil.rmtree(os.path.dirname(tmp_path))
+                except Exception, err:
+                    print("Exception while deleting temp file: %s" % str(err))
+
+        return None, "Unable to save image"
 
     @classmethod
     def delete_instance(cls, user, photo):
