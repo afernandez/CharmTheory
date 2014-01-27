@@ -23,7 +23,7 @@ from django.db import models
 from django.conf import settings
 
 # Local Imports
-from util import get_file_size_bytes, get_file_md5
+from util import get_file_size_bytes, get_file_md5, scale_img_and_save, delete_files_with_suffix
 from dating.exceptions import ImageDimensionException
 
 # Third Party Imports
@@ -321,7 +321,7 @@ class User(models.Model):
 
         if photos and len(photos) == 1:
             photo = photos[0]
-            return photo.rel_path()
+            return photo.rel_path(size="l")
 
         picture = "man_face.gif" if self.gender == "male" else "woman_face.gif"
         return "/".join(["", "static", "images", picture])
@@ -412,14 +412,12 @@ class UserPhoto(models.Model):
             try:
                 img = Image.open(tmp_path)
                 width, height = img.size
-                # Must garbage collect once done using in order to be able to delete
-                del img
 
                 print("Width: %d, Height: %d" % (width, height))
-                if width < 250 or height < 250:
-                    raise ImageDimensionException("Dimensions are too small")
 
-                # TODO, perform scaling.
+                # Want to keep a 4:3 frame ratio
+                if width < 200 or height < 266:
+                    raise ImageDimensionException("Dimensions are too small")
 
                 hash_md5 = get_file_md5(tmp_path)
                 size = get_file_size_bytes(tmp_path)
@@ -432,6 +430,19 @@ class UserPhoto(models.Model):
                     os.makedirs(root)
                 path = os.path.join(root, name)
                 shutil.copy2(tmp_path, path)
+
+                # Scale the image in 4 different sizes
+                # xs 50x50 used in suggestions, chat, and user "profile" settings link
+                # s 120x120 used in sliders
+                # m 200x266 used in search to have 4 results per row
+                # l 300x400 used in profile's main picture
+                scale_img_and_save(img, 50.0, 50.0, name, "xs", root)
+                scale_img_and_save(img, 120.0, 120.0, name, "s", root)
+                scale_img_and_save(img, 200.0, 266.0, name, "m", root, crop=False)
+                scale_img_and_save(img, 300.0, 400.0, name, "l", root, crop=False)
+
+                # Must garbage collect once done using in order to be able to delete
+                del img
 
                 photo = UserPhoto(user_id=user_id, name=name, path=path, primary=primary, bytes=size, size="regular",
                                   hash_md5=hash_md5)
@@ -470,7 +481,11 @@ class UserPhoto(models.Model):
         try:
             if os.path.isfile(photo.path):
                 os.remove(photo.path)
-        except:
+
+            # Check each of the other photo sizes
+            delete_files_with_suffix(photo.path, ["xs", "s", "m", "l"])
+        except Exception, err:
+            print("Unable to delete files. Error: %s" % str(err))
             pass
 
         # If it's the primary photo, need to designate a new primary
@@ -485,5 +500,23 @@ class UserPhoto(models.Model):
         self.primary = 1
         self.save()
 
-    def rel_path(self):
-        return "/".join(["", "static", "dropbox", "users", self.user.nick, self.name])
+    def rel_path(self, size=""):
+        name = self.name
+        if size != "":
+            name_and_ext = os.path.splitext(self.name)
+            name = name_and_ext[0] + "_" + size + name_and_ext[1]
+
+        return "/".join(["", "static", "dropbox", "users", self.user.nick, name])
+
+    def rel_path_l(self):
+        return self.rel_path("l")
+
+    def rel_path_m(self):
+        return self.rel_path("m")
+
+    def rel_path_s(self):
+        return self.rel_path("s")
+
+    def rel_path_xs(self):
+        return self.rel_path("xs")
+

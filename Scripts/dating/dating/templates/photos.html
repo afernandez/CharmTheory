@@ -40,21 +40,20 @@
             <div id="new_photo">
                 Successfully added photo. Try scaling it.
             </div>
-        {% else %}
-            <a href="#" onclick="javascript:upload_pic(event);">Add</a>
-            <div id="upload_box" style="height: 400px; border: 2px solid black;">
-                <form id="upload" action="/photos/upload/" method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <input type="file" name="file_path" accept="image/*" size="50"/>
-                    <a href="#">Facebook</a>
-                    <a href="#">Dropbox</a>
-                    <a href="#">Instagram</a>
-                    <br/>
-                    <input type="submit" value="Upload">
-                    <a href="#" onclick="javascript:cancel_upload(event);">Cancel</a>
-                </form>
-            </div>
         {% endif %}
+        <a href="#" onclick="javascript:upload_pic(event);">Add</a>
+        <div id="upload_box" style="height: 400px; border: 2px solid black;">
+            <form id="upload" action="/photos/upload/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="file_path" accept="image/*" size="50"/>
+                <a href="#">Facebook</a>
+                <a href="#">Dropbox</a>
+                <a href="#">Instagram</a>
+                <br/>
+                <input type="submit" value="Upload">
+                <a href="#" onclick="javascript:cancel_upload(event);">Cancel</a>
+            </form>
+        </div>
     </div>
     <form id="delete_photo" action="/photos/delete/" method="post">
         {% csrf_token %}
@@ -63,7 +62,7 @@
     <div>
         {% for photo in user.user_photos %}
             <div>
-                <img src="{{ photo.rel_path }}" />
+                <img src="{{ photo.rel_path_l }}" />
                 <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X)</a>
             </div>
         {% endfor %}

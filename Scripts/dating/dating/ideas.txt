@@ -103,9 +103,11 @@ TODO
 Upload photos, scale, minimum-size requirements, tag with description, select face, sepia filter
 Upload photos via Facebook
 Reorder the photos
+
 Handle inactive users
 Custom essays
 Autogrow essays
+
 User search based on filters (select the following criteria range)
 Last active
 Visitors (mark as seen)
@@ -120,3 +122,19 @@ Algorithm for how likely user is to respond, based on messages replied and activ
 Like photos to see most popular ones
 Global site stats and trends
 Instagram, linked in, Pinterest, Tumblr
+
+Image scale:
+OK, 160x160 (profile), 35x35 (suggestion), 120x120 (slider), 238x238 (search)
+Max width: 558
+Max height: 744
+
+DateMySchool
+50x50 (main chat), 40x40 tiny chat,  200x230 around me, 40x40 me logo, 300x350 profile, 90x90 profile slider for each picture
+
+ratio of 4:3
+50x50 for suggestions
+120x120 for slider
+300x400 for profiler
+200x266 search
+actual. 
+
