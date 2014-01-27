@@ -1,0 +1,31 @@
+S3
+http://highscalability.com/blog/2012/3/7/scale-indefinitely-on-s3-with-these-secrets-of-the-s3-master.html
+http://aws.amazon.com/code/Amazon-SimpleDB/827
+
+Amazon CloudFront
+
+MogileFS
+
+
+HDFS: Hadoop Distributed File System
+
+
+Weed-FS: from Google and based on haystack
+http://code.google.com/p/weed-fs/
+https://github.com/darkdarkfruit/python-weed
+
+
+Dropbox
+https://www.dropbox.com/developers/core/start/python
+
+Cassandra
+
+MongoDB
+
+CouchDB: No-sQL DB
+http://couchdb.apache.org/
+http://japhr.blogspot.com/2009/04/render-couchdb-images-via-sinatra.html
+
+
+Eucalyptus
+https://www.eucalyptus.com/participate

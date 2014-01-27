@@ -37,6 +37,9 @@ DateLog
 DateNova
 ScienceOfDating
 ScienceOfLove
+eromance
+meetme
+pair, match, love, romance, gomeet, game, dategenie, date, woo, meet, spark, 
 
 Age-City-
 
@@ -95,3 +98,25 @@ URL, with CDN/cache/node/volume/image/size
 https://www.usenix.org/legacy/events/osdi10/tech/full_papers/Beaver.pdf
 100 GB of storage per volume (in like a single 10TB drive to generate 100 volumes)
 allow redundancy.e.g., volume 1 is physical volumes 1-3, 
+
+TODO
+Upload photos, scale, minimum-size requirements, tag with description, select face, sepia filter
+Upload photos via Facebook
+Reorder the photos
+Handle inactive users
+Custom essays
+Autogrow essays
+User search based on filters (select the following criteria range)
+Last active
+Visitors (mark as seen)
+Messages (mark as read)
+***UI and css***
+Similar users
+Date Reviews and history
+Chat service
+reverse image search
+Full text search on essays
+Algorithm for how likely user is to respond, based on messages replied and activity
+Like photos to see most popular ones
+Global site stats and trends
+Instagram, linked in, Pinterest, Tumblr

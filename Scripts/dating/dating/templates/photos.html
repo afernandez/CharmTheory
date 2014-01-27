@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ user.nick }} Photos{% endblock %}
+
+{% block content %}
+{% block javascript %}
+<script type="text/javascript">
+    function upload_pic(event) {
+        $("div#upload_box").show();
+    }
+
+    function cancel_upload(event) {
+        $("div#upload_box").hide();
+    }
+
+    function reload_upload() {
+        // Must be hidden after the form's events are set.
+        $("input#upload_token").val("{{ csrf_token }}");
+        $("div#upload_box").hide();
+    }
+
+    $(document).ready(function() {
+        reload_upload();
+    });
+</script>
+{% endblock %}
+<div style="clear: both;">
+    <h2>{{ user.nick }}</h2>
+    <div id="customize_ajax">
+        {% if new_photo %}
+            <div id="new_photo">
+                New photo goes here...
+                {{ new_photo }}
+            </div>
+        {% else %}
+            <a href="#" onclick="javascript:upload_pic(event);">Add</a>
+            <div id="upload_box" style="height: 400px; border: 2px solid black;">
+                <form id="upload" action="/photos/upload/" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="file" name="file_path" accept="image/*" size="50"/>
+                    <a href="#">Facebook</a>
+                    <a href="#">Dropbox</a>
+                    <a href="#">Instagram</a>
+                    <br/>
+                    <input type="submit" value="Upload">
+                    <a href="#" onclick="javascript:cancel_upload(event);">Cancel</a>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+    <div>
+        {% for photo in user.user_photos %}
+            <div class="photo">
+                <img src="{{ photo.rel_path }}" />
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

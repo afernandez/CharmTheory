@@ -145,9 +145,13 @@
         {% include "profile_main_ajax.html" %}
     </div>
     <div>
-        Main Picture
+        {% if user.user_photos and user.user_photos|length > 0 %}
+            {{ user.user_photos|length }} photo{{ user.user_photos|pluralize}}
+        {% endif %}
+        <br/>
         <img src="{{ user.main_photo }}"  />
-        Done picture
+
+        <a href="/photos/">Photos</a>
     </div>
 </div>
 <div style="clear: both; width: 100%;">

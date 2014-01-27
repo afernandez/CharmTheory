@@ -9,6 +9,7 @@ import hashlib
 import uuid
 import binascii
 from datetime import datetime, timedelta, date
+import os
 
 # Django Imports
 from django.http import HttpResponse
@@ -18,9 +19,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 # Local imports
-from dating.models import User
+from dating.models import User, UserPhoto
 
 # Third Party Imports
 
@@ -394,6 +396,37 @@ def profile(request):
     data["months"] = User.get_months()
     data["days"] = User.get_days()
     return render(request, "profile.html", data)
+
+@requires_login
+def photos(request):
+    user = User.get_from_nick(request.session["nick"])
+    data = {}
+    if user:
+        data = {"user": user}
+
+    print("Viewing photos")
+    return render(request, "photos.html", data)
+
+@requires_login
+def upload(request):
+    data = {}
+    if request.method == "POST":
+        user = User.get_from_nick(request.session["nick"])
+
+        if user:
+            data = {"user": user}
+
+            file = request.FILES['file_path']
+            filename = file._get_name()
+            if user.get_photo_with_name(filename):
+                data["error"] = "A photo with that name already exists."
+            else:
+                photo = UserPhoto.create(user.id, filename, file)
+                if photo:
+                    data["new_photo"] = filename
+                else:
+                    data["error"] = "Try uploading the photo again."
+    return render(request, "photos.html", data)
 
 def photo(request, cdn, cache, node, volume, image, size_ext):
     # E.g., http://localhost:8000/photo/a/b/c/01/01/dec2b092a63342d6a55e3810b9908d9f/m.jpeg

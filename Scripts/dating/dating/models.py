@@ -15,12 +15,14 @@ import re
 from datetime import datetime
 import calendar
 import math
+import os
 
 # Django Imports
 from django.db import models
 from django.conf import settings
 
 # Local Imports
+from util import get_file_size_bytes, get_file_md5
 
 # Third Party Imports
 
@@ -91,6 +93,13 @@ class User(models.Model):
         user.save()
 
         return user
+
+    @classmethod
+    def get_from_id(cls, id):
+        """
+        @return: The user with the given id.
+        """
+        return User.objects.get(id=id)
 
     @classmethod
     def get_from_email(cls, email):
@@ -266,6 +275,9 @@ class User(models.Model):
             return "%d' %d''" % (feet, rem_inches)
         return None
 
+    def user_photos(self):
+        return self.photos.all()
+
     def story(self):
         try:
             return self.essays.filter(title="story")[0].info
@@ -295,6 +307,12 @@ class User(models.Model):
             return self.essays.filter(title="message_me_if")[0].info
         except IndexError:
             return ""
+
+    def get_photo_with_name(self, name):
+        try:
+            return self.photos.filter(name=name)[0]
+        except IndexError:
+            return None
 
     def main_photo(self):
         node = "01"
@@ -328,3 +346,64 @@ class UserEssay(models.Model):
         user_essay.save()
 
         return user_essay
+
+
+class UserPhoto(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=128)
+    path = models.CharField(max_length=256)
+    primary = models.BooleanField(blank=False, null=False)
+    bytes = models.IntegerField(blank=False, null=False)
+    size = models.CharField(max_length=32, blank=False, null=False)
+    tag = models.CharField(max_length=128, blank=True, null=True)
+    hash_md5 = models.CharField(max_length=32, blank=False, null=False)
+    user = models.ForeignKey(User, related_name="photos", on_delete=models.CASCADE)
+
+    class Meta:
+         db_table = "user_photo"
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.name, self.path)
+
+    @classmethod
+    def create(cls, user_id, name, image):
+        """
+        @param user_id: Foreign key to user
+        @param name: Image name, including extension
+        @param image: Actual image file
+        """
+
+        user = User.get_from_id(user_id)
+        if user:
+            primary = False if (user.photos.all() and len(user.photos.all()) > 0) else True
+
+            root = os.path.join(settings.MEDIA_ROOT, "users", user.nick)
+            if not os.path.exists(root):
+                os.makedirs(root)
+            path = os.path.join(root, name)
+
+            # TODO, what if the photo already exists in that location
+            fd = None
+            try:
+                fd = open(path, "wb")
+                for chunk in image.chunks():
+                    fd.write(chunk)
+            except IOError:
+                pass
+            finally:
+                if fd:
+                    fd.close()
+
+            hash_md5 = get_file_md5(path)
+            size = get_file_size_bytes(path)
+
+            # TODO, what if the user has a photo with the same size and hash?
+
+            photo = UserPhoto(user_id=user_id, name=name, path=path, primary=primary, bytes=size, size="regular",
+                              hash_md5=hash_md5)
+            photo.save()
+            return photo
+        return None
+
+    def rel_path(self):
+        return "/".join(["", "static", "dropbox", "users", self.user.nick, self.name])
