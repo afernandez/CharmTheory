@@ -321,6 +321,15 @@ class User(models.Model):
         size_ext = "m.jpeg"
         return "/".join(["", "static", "photo", "node" + node, "volume" + volume, image, size_ext])
 
+    def add_photo(self, name, image):
+        return UserPhoto.create(self.id, name, image)
+
+    def delete_photo(self, name):
+        photo = self.get_photo_with_name(name)
+        if photo:
+            return UserPhoto.delete_instance(self, photo)
+        return False
+
 
 class UserEssay(models.Model):
     id = models.AutoField(primary_key=True)
@@ -333,7 +342,6 @@ class UserEssay(models.Model):
 
     def __unicode__(self):
         return u'%s: %s' % (self.title, self.info)
-
 
     @classmethod
     def create(cls, user_id, title, info):
@@ -397,6 +405,8 @@ class UserPhoto(models.Model):
             hash_md5 = get_file_md5(path)
             size = get_file_size_bytes(path)
 
+            # TODO, check file dimension
+
             # TODO, what if the user has a photo with the same size and hash?
 
             photo = UserPhoto(user_id=user_id, name=name, path=path, primary=primary, bytes=size, size="regular",
@@ -404,6 +414,33 @@ class UserPhoto(models.Model):
             photo.save()
             return photo
         return None
+
+    @classmethod
+    def delete_instance(cls, user, photo):
+        deleted = False
+        was_primary = photo.primary
+
+        # First, delete from the database, then, delete from storage.
+        photo.delete()
+        deleted = True
+
+        try:
+            if os.path.isfile(photo.path):
+                os.remove(photo.path)
+        except:
+            pass
+
+        # If it's the primary photo, need to designate a new primary
+        if was_primary:
+            photos = user.user_photos()
+            if photos and len(photos) > 0:
+                photos[0].set_primary()
+
+        return deleted
+
+    def set_primary(self):
+        self.primary = 1
+        self.save()
 
     def rel_path(self):
         return "/".join(["", "static", "dropbox", "users", self.user.nick, self.name])

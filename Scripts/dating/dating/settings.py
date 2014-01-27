@@ -97,6 +97,6 @@ TEMPLATE_DIRS = (
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'dating', 'static')
 LOGIN_URL = '/login/'
 MEDIA_ROOT = os.path.join(STATIC_ROOT, 'dropbox')

@@ -408,7 +408,28 @@ def photos(request):
     return render(request, "photos.html", data)
 
 @requires_login
-def upload(request):
+def upload_photo(request):
+    data = {}
+    if request.method == "POST":
+        user = User.get_from_nick(request.session["nick"])
+
+        if user:
+            data = {"user": user}
+            # TODO, how to show error message
+            file = request.FILES['file_path']
+            filename = file._get_name()
+            if user.get_photo_with_name(filename):
+                data["error"] = "A photo with that name already exists."
+            else:
+                photo = user.add_photo(filename, file)
+                if photo:
+                    data["new_photo"] = filename
+                else:
+                    data["error"] = "Try uploading the photo again."
+    return render(request, "photos.html", data)
+
+@requires_login
+def delete_photo(request):
     data = {}
     if request.method == "POST":
         user = User.get_from_nick(request.session["nick"])
@@ -416,17 +437,13 @@ def upload(request):
         if user:
             data = {"user": user}
 
-            file = request.FILES['file_path']
-            filename = file._get_name()
+            filename = request.POST.get("file", "")
             if user.get_photo_with_name(filename):
-                data["error"] = "A photo with that name already exists."
+                deleted = user.delete_photo(filename)
             else:
-                photo = UserPhoto.create(user.id, filename, file)
-                if photo:
-                    data["new_photo"] = filename
-                else:
-                    data["error"] = "Try uploading the photo again."
+                data["error"] = "That photo doesn't exist"
     return render(request, "photos.html", data)
+
 
 def photo(request, cdn, cache, node, volume, image, size_ext):
     # E.g., http://localhost:8000/photo/a/b/c/01/01/dec2b092a63342d6a55e3810b9908d9f/m.jpeg

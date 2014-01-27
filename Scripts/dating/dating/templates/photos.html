@@ -18,6 +18,11 @@
         $("div#upload_box").hide();
     }
 
+    function delete_photo(name) {
+        $("form#delete_photo input[name='file']").val(name);
+        $("form#delete_photo").submit();
+    }
+
     $(document).ready(function() {
         reload_upload();
     });
@@ -47,10 +52,15 @@
             </div>
         {% endif %}
     </div>
+    <form id="delete_photo" action="/photos/delete/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="file" value="" />
+    </form>
     <div>
         {% for photo in user.user_photos %}
-            <div class="photo">
+            <div>
                 <img src="{{ photo.rel_path }}" />
+                <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X)</a>
             </div>
         {% endfor %}
     </div>

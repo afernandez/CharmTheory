@@ -17,7 +17,8 @@ urlpatterns = patterns('',
                        url(r'^profile/stats', 'dating.views.profile_stats'),    # Edit the stats
                        url(r'^profile/essay', 'dating.views.profile_essay'),    # Edit the essays
                        url(r'^profile', 'dating.views.profile'),
-                       url(r'^photos/upload', 'dating.views.upload'),           # Upload a photo
+                       url(r'^photos/upload', 'dating.views.upload_photo'),     # Upload a photo
+                       url(r'^photos/delete', 'dating.views.delete_photo'),     # Delete a photo
                        url(r'^photos', 'dating.views.photos'),
                        url(r'^photo/(.*)/(.*)/(.*)/(.*)/(.*)/(.*)', 'dating.views.photo'),
                        url(r'^admin/', include(admin.site.urls))    # Username: alejandro, Password: alejandro
