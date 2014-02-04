@@ -1,8 +1,18 @@
 {% extends "base.html" %}
 {% block title %}{{ user.nick }} Photos{% endblock %}
 
-{% block content %}
+
 {% block javascript %}
+<!-- TODO, see effect on drag-n-drop -->
+<!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">-->
+
+<style>
+#sortable { list-style-type: none; margin: 0; padding: 0; }
+#sortable li { margin: 0 3px 3px 3px; padding: 2px; cursor: move; }
+#sortable li span { margin-left: 20px; }
+</style>
+
+
 <script type="text/javascript">
     function upload_pic(event) {
         $("div#upload_box").show();
@@ -26,8 +36,31 @@
     $(document).ready(function() {
         reload_upload();
     });
+
+     $(function() {
+
+        $("#sortable").sortable({
+            axis: 'y',
+            containment: "parent",
+            cursor: "move",
+            opacity: 0.5,
+            // Try using "change" instead of "update"
+            update: function( event, ui ) {
+                alert("updated");
+                var i = 0;
+                $("#sortable li img").each(function() {
+                    var img = $(this).attr("src");
+                    alert("Index: " + i + ", src: " + img);
+                    i++;
+                });
+            }
+        });
+        $("#sortable").disableSelection();
+    });
 </script>
 {% endblock %}
+
+{% block content %}
 <div style="clear: both;">
     <h2>{{ user.nick }}</h2>
 
@@ -59,13 +92,30 @@
         {% csrf_token %}
         <input type="hidden" name="file" value="" />
     </form>
-    <div>
+    <div style="float: left; border: 2px solid black;">
         {% for photo in user.user_photos %}
             <div>
                 <img src="{{ photo.rel_path_l }}" />
-                <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X)</a>
             </div>
         {% endfor %}
     </div>
+    <div style="float: left; border: 2px solid black; padding: 10px;">
+        <ul id="sortable">
+
+            {% for photo in user.user_photos %}
+                <li class="ui-state-default" class="sortable_item">
+                    <div style="background-color: aqua;">
+                        <img src="{{ photo.rel_path_xs }}" />
+                        <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X)</a>
+                        <!-- TODO come up with own image
+                        <span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span>
+                        -->
+                    </div>
+                </li>
+            {% endfor %}
+
+        </ul>
+    </div>
+    <div style="clear: both;"></div>
 </div>
 {% endblock %}
