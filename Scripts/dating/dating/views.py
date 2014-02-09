@@ -444,6 +444,28 @@ def delete_photo(request):
                 data["error"] = "That photo doesn't exist"
     return render(request, "photos.html", data)
 
+@requires_login
+def reorder_photo(request):
+    # This request should only be posting AJAX
+    if request.is_ajax():
+        user = User.get_from_nick(request.session["nick"])
+
+        photo_name = request.POST.get("photo")
+        new_index = int(request.POST.get("index"))
+
+        data = {}
+        if user:
+            print("Reordering the photos")
+            UserPhoto.reorder_photo(user, photo_name, new_index)
+            data = {"user": user}
+
+        html = render_to_string("photos_ajax.html", data)
+        res = {"html": html}
+        return HttpResponse(json.dumps(res), content_type='application/json')
+
+    # This code exists as a safety backup in case a GET or POST is ever done
+    return redirect("/photos")
+
 
 def photo(request, cdn, cache, node, volume, image, size_ext):
     # E.g., http://localhost:8000/photo/a/b/c/01/01/dec2b092a63342d6a55e3810b9908d9f/m.jpeg

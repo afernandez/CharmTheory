@@ -21,6 +21,8 @@ import shutil
 # Django Imports
 from django.db import models
 from django.conf import settings
+from django.db.models import F
+from django.core.exceptions import ObjectDoesNotExist
 
 # Local Imports
 from util import get_file_size_bytes, get_file_md5, scale_img_and_save, delete_files_with_suffix
@@ -317,9 +319,9 @@ class User(models.Model):
             return None
 
     def main_photo(self):
-        photos = self.photos.filter(primary=1).all()
+        photos = self.photos.filter(order=0).all()
 
-        if photos and len(photos) == 1:
+        if photos and len(photos) > 0:
             photo = photos[0]
             return photo.rel_path(size="l")
 
@@ -366,14 +368,14 @@ class UserEssay(models.Model):
 
 class UserPhoto(models.Model):
     id = models.AutoField(primary_key=True)
+    user = models.ForeignKey(User, related_name="photos", on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     path = models.CharField(max_length=256)
-    primary = models.BooleanField(blank=False, null=False)
     bytes = models.IntegerField(blank=False, null=False)
     size = models.CharField(max_length=32, blank=False, null=False)
     tag = models.CharField(max_length=128, blank=True, null=True)
     hash_md5 = models.CharField(max_length=32, blank=False, null=False)
-    user = models.ForeignKey(User, related_name="photos", on_delete=models.CASCADE)
+    order = models.SmallIntegerField(blank=False, null=False)
 
     class Meta:
          db_table = "user_photo"
@@ -391,7 +393,9 @@ class UserPhoto(models.Model):
 
         user = User.get_from_id(user_id)
         if user:
-            primary = False if (user.photos.all() and len(user.photos.all()) > 0) else True
+            photos = user.photos.all()
+            # Order is zero-based index
+            order = (max([x.order for x in photos]) + 1) if (photos and len(photos) > 0) else 0
 
             tmp_root = os.path.join(settings.TMP_MEDIA_ROOT, "users", user.nick)
             if not os.path.exists(tmp_root):
@@ -444,8 +448,8 @@ class UserPhoto(models.Model):
                 # Must garbage collect once done using in order to be able to delete
                 del img
 
-                photo = UserPhoto(user_id=user_id, name=name, path=path, primary=primary, bytes=size, size="regular",
-                                  hash_md5=hash_md5)
+                photo = UserPhoto(user_id=user_id, name=name, path=path, bytes=size, size="regular",
+                                  hash_md5=hash_md5, order=order)
                 photo.save()
                 return photo, ""
             except Exception, err:
@@ -472,11 +476,13 @@ class UserPhoto(models.Model):
     @classmethod
     def delete_instance(cls, user, photo):
         deleted = False
-        was_primary = photo.primary
 
         # First, delete from the database, then, delete from storage.
+        curr_order = photo.order
         photo.delete()
         deleted = True
+        # Reshift photos with a greater order
+        user.photos.filter(order__gt=curr_order).update(order=F('order') - 1)
 
         try:
             if os.path.isfile(photo.path):
@@ -487,18 +493,27 @@ class UserPhoto(models.Model):
         except Exception, err:
             print("Unable to delete files. Error: %s" % str(err))
             pass
-
-        # If it's the primary photo, need to designate a new primary
-        if was_primary:
-            photos = user.user_photos()
-            if photos and len(photos) > 0:
-                photos[0].set_primary()
-
         return deleted
 
-    def set_primary(self):
-        self.primary = 1
-        self.save()
+    @classmethod
+    def reorder_photo(cls, user, photo_name, new_index):
+        try:
+            photo = user.photos.get(name=photo_name)
+            photos = user.photos.all()
+            old_index = photo.order
+
+            if new_index >= 0 and new_index < len(photos):
+                if new_index > old_index:
+                    # Moving down, get all photos in-between
+                    user.photos.filter(order__range=(old_index, new_index)).update(order=F('order') - 1)
+                else:
+                    # Moving up, get all photos in-between
+                    user.photos.filter(order__range=(new_index, old_index)).update(order=F('order') + 1)
+
+                photo.order = new_index
+                photo.save()
+        except ObjectDoesNotExist, err:
+            print("Exception occurred. Unable to reorder photos. %s" % str(err))
 
     def rel_path(self, size=""):
         name = self.name

@@ -1,0 +1,39 @@
+<!-- Main photos -->
+<div style="float: left; border: 2px solid black;">
+    {% for photo in user.user_photos|dictsort:"order" %}
+        <div>
+            <img src="{{ photo.rel_path_l }}" />
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Sorting and deletion -->
+<div style="float: left; border: 2px solid black; padding: 10px;">
+    <ul id="sortable">
+
+        {% for photo in user.user_photos|dictsort:"order" %}
+            <li class="ui-state-default" class="sortable_item" id="{{ photo.name }}">
+                <div style="background-color: aqua;">
+                    <img src="{{ photo.rel_path_xs }}" />
+                    <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X) {{ photo.order }}</a>
+                    <!-- TODO come up with own image
+                    <span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span>
+                    -->
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Form used to sort photos. -->
+    <form id="reorder_photos" action="/photos/reorder/" method="post">
+        <input type="hidden" id="reorder_photos_token" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+        <input type="hidden" name="photo" value="">
+        <input type="hidden" name="index" value="" />
+    </form>
+
+    <!-- Form to delete photos. -->
+    <form id="delete_photo" action="/photos/delete/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="file" value="" />
+    </form>
+</div>

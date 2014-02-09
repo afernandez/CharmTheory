@@ -18,7 +18,7 @@ class UserEssayAdmin(admin.ModelAdmin):
 
 
 class UserPhotoAdmin(admin.ModelAdmin):
-    list_display = ('user', 'name', 'path', 'size', 'bytes')
+    list_display = ('user', 'name', 'path', 'order', 'size', 'bytes')
     search_fields = ('user', 'name', 'path')
     list_filter = ('size', 'user')
 

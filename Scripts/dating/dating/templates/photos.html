@@ -28,16 +28,23 @@
         $("div#upload_box").hide();
     }
 
-    function delete_photo(name) {
-        $("form#delete_photo input[name='file']").val(name);
-        $("form#delete_photo").submit();
-    }
+    function reload_reorder_photos() {
+        $("input#reorder_photos_token").val("{{ csrf_token }}");
+        $("form#reorder_photos").submit(function(event) {
+            event.preventDefault();
 
-    $(document).ready(function() {
-        reload_upload();
-    });
-
-     $(function() {
+            $.ajax({
+                type:"POST",
+                url: $(this).attr("action"),
+                data: $(this).serialize(),
+                dataType: "json",
+                success: function(response){
+                    $("#photos_ajax").html(response.html);
+                    reload_reorder_photos();
+                }
+            });
+            return false;
+        });
 
         $("#sortable").sortable({
             axis: 'y',
@@ -46,25 +53,40 @@
             opacity: 0.5,
             // Try using "change" instead of "update"
             update: function( event, ui ) {
-                alert("updated");
-                var i = 0;
-                $("#sortable li img").each(function() {
-                    var img = $(this).attr("src");
-                    alert("Index: " + i + ", src: " + img);
-                    i++;
-                });
+                // Zero-based index
+                var photo = ui.item.attr("id");
+                var new_index = ui.item.index();
+
+                $("#reorder_photos input[name='photo']").attr("value", photo);
+                $("#reorder_photos input[name='index']").attr("value", new_index);
+                $("form#reorder_photos").submit();
             }
         });
         $("#sortable").disableSelection();
+    }
+
+    // TODO, consider user AJAX to make request, and remove elements from DOM tree
+    // instead of reloading all of the other photos.
+    function delete_photo(name) {
+        $("form#delete_photo input[name='file']").val(name);
+        $("form#delete_photo").submit();
+    }
+
+    $(document).ready(function() {
+        reload_upload();
+        reload_reorder_photos();
     });
 </script>
 {% endblock %}
 
 {% block content %}
-<div style="clear: both;">
+<div style="clear: both;"
     <h2>{{ user.nick }}</h2>
 
-    <div id="customize_ajax">
+    <h2><a href="/photos">Photos</a></h2>
+
+    <!-- Box to upload new photo. TODO, make modal -->
+    <div>
         {% if error %}
             <span style="color: red;">{{ error }}</span>
         {% endif %}
@@ -88,34 +110,11 @@
             </form>
         </div>
     </div>
-    <form id="delete_photo" action="/photos/delete/" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="file" value="" />
-    </form>
-    <div style="float: left; border: 2px solid black;">
-        {% for photo in user.user_photos %}
-            <div>
-                <img src="{{ photo.rel_path_l }}" />
-            </div>
-        {% endfor %}
-    </div>
-    <div style="float: left; border: 2px solid black; padding: 10px;">
-        <ul id="sortable">
 
-            {% for photo in user.user_photos %}
-                <li class="ui-state-default" class="sortable_item">
-                    <div style="background-color: aqua;">
-                        <img src="{{ photo.rel_path_xs }}" />
-                        <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X)</a>
-                        <!-- TODO come up with own image
-                        <span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span>
-                        -->
-                    </div>
-                </li>
-            {% endfor %}
-
-        </ul>
+    <div id="photos_ajax">
+        {% include "photos_ajax.html" %}
     </div>
+
     <div style="clear: both;"></div>
 </div>
 {% endblock %}

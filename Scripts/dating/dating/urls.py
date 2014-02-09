@@ -19,6 +19,7 @@ urlpatterns = patterns('',
                        url(r'^profile', 'dating.views.profile'),
                        url(r'^photos/upload', 'dating.views.upload_photo'),     # Upload a photo
                        url(r'^photos/delete', 'dating.views.delete_photo'),     # Delete a photo
+                       url(r'^photos/reorder', 'dating.views.reorder_photo'),    # Reindex the photos
                        url(r'^photos', 'dating.views.photos'),
                        url(r'^photo/(.*)/(.*)/(.*)/(.*)/(.*)/(.*)', 'dating.views.photo'),
                        url(r'^admin/', include(admin.site.urls))    # Username: alejandro, Password: alejandro
