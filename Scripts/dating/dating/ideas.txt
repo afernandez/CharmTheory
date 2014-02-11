@@ -101,7 +101,7 @@ allow redundancy.e.g., volume 1 is physical volumes 1-3,
 
 TODO
 Upload photos, scale, minimum-size requirements, tag with description, select face, sepia filter
-Upload photos via Facebook
+Upload photos via Facebook and Instagram
 Reorder the photos
 
 Handle inactive users
@@ -122,6 +122,8 @@ Algorithm for how likely user is to respond, based on messages replied and activ
 Like photos to see most popular ones
 Global site stats and trends
 Instagram, linked in, Pinterest, Tumblr
+
+Metrics, when did the user join? Last active, 
 
 Image scale:
 OK, 160x160 (profile), 35x35 (suggestion), 120x120 (slider), 238x238 (search)

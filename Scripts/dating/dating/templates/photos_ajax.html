@@ -1,14 +1,23 @@
+{% load filters %}
+
 <!-- Main photos -->
 <div style="float: left; border: 2px solid black;">
-    {% for photo in user.user_photos|dictsort:"order" %}
-        <div>
-            <img src="{{ photo.rel_path_l }}" />
+    <section class="grid">
+        <div class="gridster">
+            <ul>
+                {% for photo in user.user_photos|dictsort:"order" %}
+                    <li data-col="{{ forloop.counter0|column:4 }}" data-row="{{ forloop.counter0|int_div_plus_one:4 }}" data-sizex="1" data-sizey="1">
+                            <img src="{{ photo.rel_path_s }}" />
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
-    {% endfor %}
+    </section>
 </div>
 
 <!-- Sorting and deletion -->
 <div style="float: left; border: 2px solid black; padding: 10px;">
+
     <ul id="sortable">
 
         {% for photo in user.user_photos|dictsort:"order" %}

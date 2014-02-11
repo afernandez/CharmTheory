@@ -3,6 +3,11 @@
 
 
 {% block javascript %}
+<!-- http://gridster.net/ -->
+<link rel="stylesheet" type="text/css" href="/static/css/jquery.gridster.min.css">
+<link rel="stylesheet" type="text/css" href="/static/styles.css">
+<script src="/static/js/jquery.gridster.min.js"></script>
+
 <!-- TODO, see effect on drag-n-drop -->
 <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">-->
 
@@ -26,6 +31,16 @@
         // Must be hidden after the form's events are set.
         $("input#upload_token").val("{{ csrf_token }}");
         $("div#upload_box").hide();
+    }
+
+    function reload_grid() {
+        var gridster;
+        gridster = $(".gridster > ul").gridster({
+            widget_margins: [10, 10],
+            widget_base_dimensions: [140, 140],
+            max_cols: 4,
+            max_rows: 4
+        }).data('gridster');
     }
 
     function reload_reorder_photos() {
@@ -72,15 +87,16 @@
         $("form#delete_photo").submit();
     }
 
-    $(document).ready(function() {
+    $(function() {
         reload_upload();
         reload_reorder_photos();
+        reload_grid();
     });
 </script>
 {% endblock %}
 
 {% block content %}
-<div style="clear: both;"
+<div style="clear: both;">
     <h2>{{ user.nick }}</h2>
 
     <h2><a href="/photos">Photos</a></h2>
