@@ -6,7 +6,7 @@
         <div class="gridster">
             <ul>
                 {% for photo in user.user_photos|dictsort:"order" %}
-                    <li data-col="{{ forloop.counter0|column:4 }}" data-row="{{ forloop.counter0|int_div_plus_one:4 }}" data-sizex="1" data-sizey="1">
+                    <li data-col="{{ forloop.counter0|column:4 }}" data-row="{{ forloop.counter0|int_div_plus_one:4 }}" data-sizex="1" data-sizey="1" title="{{ photo.name }}">
                             <img src="{{ photo.rel_path_s }}" />
                     </li>
                 {% endfor %}
@@ -36,8 +36,7 @@
     <!-- Form used to sort photos. -->
     <form id="reorder_photos" action="/photos/reorder/" method="post">
         <input type="hidden" id="reorder_photos_token" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
-        <input type="hidden" name="photo" value="">
-        <input type="hidden" name="index" value="" />
+        <input type="hidden" name="grid" value="" />
     </form>
 
     <!-- Form to delete photos. -->

@@ -450,13 +450,21 @@ def reorder_photo(request):
     if request.is_ajax():
         user = User.get_from_nick(request.session["nick"])
 
-        photo_name = request.POST.get("photo")
-        new_index = int(request.POST.get("index"))
-
+        grid_json = request.POST.get("grid")
         data = {}
         if user:
-            print("Reordering the photos")
-            UserPhoto.reorder_photo(user, photo_name, new_index)
+            raw_grid = json.loads(grid_json)
+            grid = {}
+            for kv in raw_grid:
+                # There's javascript code that sets these values
+                grid[kv["index"]] = kv["id"]
+
+            i = 0
+            for k, v in sorted(grid.items()):
+                #k is new index
+                #v is the photo name
+                UserPhoto.reorder_photo(user, v, i)
+                i += 1
             data = {"user": user}
 
         html = render_to_string("photos_ajax.html", data)

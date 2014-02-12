@@ -13,8 +13,9 @@
 
 <style>
 #sortable { list-style-type: none; margin: 0; padding: 0; }
-#sortable li { margin: 0 3px 3px 3px; padding: 2px; cursor: move; }
+#sortable li { margin: 0 3px 3px 3px; padding: 2px; }
 #sortable li span { margin-left: 20px; }
+.gridster ul li { cursor: move; }
 </style>
 
 
@@ -39,7 +40,24 @@
             widget_margins: [10, 10],
             widget_base_dimensions: [140, 140],
             max_cols: 4,
-            max_rows: 4
+            max_rows: 4,
+            serialize_params: function($w, wgd) {
+                return {
+                    id: $($w).attr('title'),
+                    index: ((wgd.row - 1) * 4) + (wgd.col - 1),   // Zero-based
+                    //col: wgd.col,
+                    //row: wgd.row,
+                    //size_x: wgd.size_x,
+                    //size_y: wgd.size_y,
+                };
+            },
+            draggable: {
+                stop: function(event, ui) {
+                    var indexes = JSON.stringify(this.serialize());
+                    $("#reorder_photos input[name='grid']").attr("value", indexes);
+                    $("form#reorder_photos").submit();
+                }
+            }
         }).data('gridster');
     }
 
@@ -56,28 +74,11 @@
                 success: function(response){
                     $("#photos_ajax").html(response.html);
                     reload_reorder_photos();
+                    reload_grid();
                 }
             });
             return false;
         });
-
-        $("#sortable").sortable({
-            axis: 'y',
-            containment: "parent",
-            cursor: "move",
-            opacity: 0.5,
-            // Try using "change" instead of "update"
-            update: function( event, ui ) {
-                // Zero-based index
-                var photo = ui.item.attr("id");
-                var new_index = ui.item.index();
-
-                $("#reorder_photos input[name='photo']").attr("value", photo);
-                $("#reorder_photos input[name='index']").attr("value", new_index);
-                $("form#reorder_photos").submit();
-            }
-        });
-        $("#sortable").disableSelection();
     }
 
     // TODO, consider user AJAX to make request, and remove elements from DOM tree
