@@ -6,8 +6,16 @@
         <div class="gridster">
             <ul>
                 {% for photo in user.user_photos|dictsort:"order" %}
+                    <!-- The title is important since it is used in the AJAX request. -->
                     <li data-col="{{ forloop.counter0|column:4 }}" data-row="{{ forloop.counter0|int_div_plus_one:4 }}" data-sizex="1" data-sizey="1" title="{{ photo.name }}">
-                            <img src="{{ photo.rel_path_s }}" />
+                        <!--
+                        <img src="{{ photo.rel_path_s }}" />
+                        -->
+                        <!-- The rel attribute is what allows it to be a lightbox display. -->
+                        <a href="{{ photo.rel_path_l }}" rel="prettyPhoto[{{ user.nick }}]" title="Additional description: {{ photo.name }}">
+                            <!-- This is the thumbnail. -->
+                            <img src="{{ photo.rel_path_s }}" width="120" height="120" alt="Title {{ photo.name }}" />
+                        </a>
                     </li>
                 {% endfor %}
             </ul>
@@ -19,7 +27,6 @@
 <div style="float: left; border: 2px solid black; padding: 10px;">
 
     <ul id="sortable">
-
         {% for photo in user.user_photos|dictsort:"order" %}
             <li class="ui-state-default" class="sortable_item" id="{{ photo.name }}">
                 <div style="background-color: aqua;">

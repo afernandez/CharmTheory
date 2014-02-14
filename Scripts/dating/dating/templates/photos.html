@@ -8,6 +8,9 @@
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
 <script src="/static/js/jquery.gridster.min.js"></script>
 
+<link rel="stylesheet" href="/static/css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
+<script src="/static/js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
+
 <!-- TODO, see effect on drag-n-drop -->
 <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">-->
 
@@ -34,6 +37,8 @@
         $("div#upload_box").hide();
     }
 
+    // Global variable used to indicate that a drag is in progress.
+    var dragging = 0;
     function reload_grid() {
         var gridster;
         gridster = $(".gridster > ul").gridster({
@@ -52,6 +57,9 @@
                 };
             },
             draggable: {
+                start: function(event, ui) {
+                    dragging = 1;
+                },
                 stop: function(event, ui) {
                     var indexes = JSON.stringify(this.serialize());
                     $("#reorder_photos input[name='grid']").attr("value", indexes);
@@ -59,6 +67,15 @@
                 }
             }
         }).data('gridster');
+
+        // Prevent links inside gridster widgets to fire click event while dragging.
+        $('.gridster img').click(function (e) {
+            if (dragging == 1) {
+                e.stopPropagation();    // Prevents the bubble to the prettyPhoto event handlers
+                e.preventDefault();     // Prevents the picture from being shown
+            }
+            dragging = 0;
+        });
     }
 
     function reload_reorder_photos() {
@@ -75,9 +92,22 @@
                     $("#photos_ajax").html(response.html);
                     reload_reorder_photos();
                     reload_grid();
+                    reload_gallery_effects();
                 }
             });
             return false;
+        });
+    }
+
+    function reload_gallery_effects() {
+        $("a[rel^='prettyPhoto']").prettyPhoto({
+            theme: 'facebook', /* dark_rounded and dark_square also look good */
+            opacity: 0.80,
+            show_title: false,
+            gallery_markup: '', /* Set to empty to remove hover-gallery */
+            keyboard_shortcuts: true, /* Set to false if you open forms inside prettyPhoto */
+            image_markup: 'Hello<img id="fullResImage" src="{path}" />World',
+            social_tools: '',
         });
     }
 
@@ -92,6 +122,7 @@
         reload_upload();
         reload_reorder_photos();
         reload_grid();
+        reload_gallery_effects();
     });
 </script>
 {% endblock %}
@@ -127,6 +158,27 @@
             </form>
         </div>
     </div>
+
+    <!-- http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/documentation -->
+    <script type="text/javascript" charset="utf-8">
+        jQuery.events = function(expr) {
+            var rez = [], evo;
+            jQuery(expr).each(
+                function(){
+                    if (evo = jQuery._data(this, "events"))
+                        rez.push({element: this, events: evo});
+                }
+            );
+            return rez.length > 0 ? rez : null ;
+        }
+
+        $(document).ready(function(){
+            // TODO, useful way to find all event handlers associated with an object.
+            //var event_list = jQuery.events("a") ;
+            //var obj = JSON.stringify(event_list);
+            //alert(obj);
+        });
+    </script>
 
     <div id="photos_ajax">
         {% include "photos_ajax.html" %}
