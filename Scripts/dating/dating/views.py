@@ -475,6 +475,27 @@ def reorder_photo(request):
     return redirect("/photos")
 
 
+@requires_login
+def edit_photo_tag(request):
+    if request.method == "POST":
+        user = User.get_from_nick(request.session["nick"])
+
+        photo_name = request.POST.get("photo")
+        tag = request.POST.get("tag")
+
+        data = {}
+        if user:
+            photo = user.get_photo_with_name(photo_name)
+            if photo:
+                photo.set_tag(tag)
+            data = {"user": user}
+
+        return render(request, "photos.html", data)
+
+    # This code exists as a safety backup in case a GET or POST is ever done
+    return redirect("/photos")
+
+# TODO, this view is not currently used, delete it.
 def photo(request, cdn, cache, node, volume, image, size_ext):
     # E.g., http://localhost:8000/photo/a/b/c/01/01/dec2b092a63342d6a55e3810b9908d9f/m.jpeg
     path = "/".join(["", "static", "photo", "node" + node, "volume" + volume, image, size_ext])

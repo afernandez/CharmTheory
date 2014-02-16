@@ -116,13 +116,13 @@ div.facebook .pp_bottom .pp_right{background:url(../images/prettyPhoto/facebook/
 div.pp_pic_holder a:focus{outline:none}
 div.pp_overlay{background:#000;display:none;left:0;position:absolute;top:0;width:100%;z-index:9500}
 div.pp_pic_holder{display:none;position:absolute;width:100px;z-index:10000}
-.pp_content{min-width:40px;height:100% !important;overflow:auto !important;}        /* Used to be only, height:40px;min-width:40px;*/
+.pp_content{min-width:40px;height:100% !important;overflow:auto !important;}        /* Used to be only, height:40px;min-width:40px; */
 * html .pp_content{width:40px;height:100% !important;overflow:auto !important;}     /* Used to be only, width:40px; */
 .pp_content_container{position:relative;text-align:left;width:100%}
 .pp_content_container .pp_left{padding-left:20px}
 .pp_content_container .pp_right{padding-right:20px}
 .pp_content_container .pp_details{float:left;margin:10px 0 2px}
-.pp_description{display:none;margin:0}
+.pp_description{display:block !important;margin:0; float: left !important; clear: both !important; width: 100%;} /* Used to be only, display:none;margin:0; */
 .pp_social{float:left;margin:0}
 .pp_social .facebook{float:left;margin-left:5px;width:55px;overflow:hidden}
 .pp_social .twitter{float:left}

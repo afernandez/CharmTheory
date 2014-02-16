@@ -2,20 +2,29 @@
 
 <!-- Main photos -->
 <div style="float: left; border: 2px solid black;">
-    <section class="grid">
+    <section class="grid" style="background-color: transparent !important; margin: none !important;">
         <div class="gridster">
             <ul>
                 {% for photo in user.user_photos|dictsort:"order" %}
                     <!-- The title is important since it is used in the AJAX request. -->
-                    <li data-col="{{ forloop.counter0|column:4 }}" data-row="{{ forloop.counter0|int_div_plus_one:4 }}" data-sizex="1" data-sizey="1" title="{{ photo.name }}">
+                    <li data-col="{{ forloop.counter0|column:4 }}" data-row="{{ forloop.counter0|int_div_plus_one:4 }}" data-sizex="1" data-sizey="1" title="{{ photo.name }}" style="padding: 5px;">
                         <!--
                         <img src="{{ photo.rel_path_s }}" />
                         -->
                         <!-- The rel attribute is what allows it to be a lightbox display. -->
-                        <a href="{{ photo.rel_path_l }}" rel="prettyPhoto[{{ user.nick }}]" title="Additional description: {{ photo.name }}">
+                        <!-- The name is the lookup value retrieved when editing the photo tag. -->
+                        <!-- There's a bug in prettyPhoto where the title gets weird values if at least one of them is None. -->
+                        <a href="{{ photo.rel_path_l }}" rel="prettyPhoto[{{ user.nick }}]" title='{{ photo.tag|default_if_none:" " }}' name="{{ photo.name }}">
                             <!-- This is the thumbnail. -->
-                            <img src="{{ photo.rel_path_s }}" width="120" height="120" alt="Title {{ photo.name }}" />
+                            <img src="{{ photo.rel_path_s }}" width="120" height="120" class="image_frame"/>
                         </a>
+                        <!-- The delete container must be enclosed with positive height in order for the li hover to stay while
+                        the user moves the mouse from the image to the delete link. -->
+                        <div style="height: 20px;">
+                            <span class="delete" style="display: none; cursor: default;">
+                                <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete</a>
+                            </span>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
@@ -23,24 +32,9 @@
     </section>
 </div>
 
-<!-- Sorting and deletion -->
-<div style="float: left; border: 2px solid black; padding: 10px;">
-
-    <ul id="sortable">
-        {% for photo in user.user_photos|dictsort:"order" %}
-            <li class="ui-state-default" class="sortable_item" id="{{ photo.name }}">
-                <div style="background-color: aqua;">
-                    <img src="{{ photo.rel_path_xs }}" />
-                    <a href="#" onclick="javascript:delete_photo('{{ photo.name }}')">delete (X) {{ photo.order }}</a>
-                    <!-- TODO come up with own image
-                    <span class="ui-icon ui-icon-arrowthick-2-n-s" style="float: right;"></span>
-                    -->
-                </div>
-            </li>
-        {% endfor %}
-    </ul>
-
-    <!-- Form used to sort photos. -->
+<!-- Sorting and deletion of photos. As well as editing photo tag. -->
+<div>
+    <!-- AJAX form used to sort photos. -->
     <form id="reorder_photos" action="/photos/reorder/" method="post">
         <input type="hidden" id="reorder_photos_token" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
         <input type="hidden" name="grid" value="" />
@@ -50,5 +44,12 @@
     <form id="delete_photo" action="/photos/delete/" method="post">
         {% csrf_token %}
         <input type="hidden" name="file" value="" />
+    </form>
+
+    <!-- AJAX frm used to edit the photo's tag. -->
+    <form id="edit_photo_tag" action="/photos/edit/tag/" method="post">
+        <input type="hidden" id="edit_photo_tag_token" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+        <input type="hidden" name="photo" value="" />
+        <input type="hidden" name="tag" value="" />
     </form>
 </div>

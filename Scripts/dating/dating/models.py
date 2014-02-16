@@ -373,7 +373,7 @@ class UserPhoto(models.Model):
     path = models.CharField(max_length=256)
     bytes = models.IntegerField(blank=False, null=False)
     size = models.CharField(max_length=32, blank=False, null=False)
-    tag = models.CharField(max_length=128, blank=True, null=True)
+    tag = models.CharField(max_length=256, blank=True, null=True)
     hash_md5 = models.CharField(max_length=32, blank=False, null=False)
     order = models.SmallIntegerField(blank=False, null=False)
 
@@ -514,6 +514,13 @@ class UserPhoto(models.Model):
                 photo.save()
         except ObjectDoesNotExist, err:
             print("Exception occurred. Unable to reorder photos. %s" % str(err))
+
+    def set_tag(self, tag):
+        try:
+            self.tag = tag
+            self.save()
+        except Exception, err:
+            pass
 
     def rel_path(self, size=""):
         name = self.name

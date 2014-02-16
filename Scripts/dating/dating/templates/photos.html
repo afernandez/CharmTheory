@@ -8,19 +8,9 @@
 <link rel="stylesheet" type="text/css" href="/static/styles.css">
 <script src="/static/js/jquery.gridster.min.js"></script>
 
+<!-- http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/ -->
 <link rel="stylesheet" href="/static/css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
 <script src="/static/js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
-
-<!-- TODO, see effect on drag-n-drop -->
-<!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">-->
-
-<style>
-#sortable { list-style-type: none; margin: 0; padding: 0; }
-#sortable li { margin: 0 3px 3px 3px; padding: 2px; }
-#sortable li span { margin-left: 20px; }
-.gridster ul li { cursor: move; }
-</style>
-
 
 <script type="text/javascript">
     function upload_pic(event) {
@@ -42,7 +32,7 @@
     function reload_grid() {
         var gridster;
         gridster = $(".gridster > ul").gridster({
-            widget_margins: [10, 10],
+            widget_margins: [20, 20],
             widget_base_dimensions: [140, 140],
             max_cols: 4,
             max_rows: 4,
@@ -76,13 +66,21 @@
             }
             dragging = 0;
         });
+
+        $(".gridster li").mouseover(function() {
+            // Find the child "delete" class and show it on the hover
+            $(this).find(".delete").show();
+        });
+        $(".gridster li").mouseout(function() {
+            // Find the child "delete" class and show it on the hover
+            $(this).find(".delete").hide();
+        });
     }
 
     function reload_reorder_photos() {
         $("input#reorder_photos_token").val("{{ csrf_token }}");
         $("form#reorder_photos").submit(function(event) {
             event.preventDefault();
-
             $.ajax({
                 type:"POST",
                 url: $(this).attr("action"),
@@ -90,13 +88,84 @@
                 dataType: "json",
                 success: function(response){
                     $("#photos_ajax").html(response.html);
-                    reload_reorder_photos();
-                    reload_grid();
-                    reload_gallery_effects();
+                    reload_photo_ajax();
                 }
             });
             return false;
         });
+    }
+
+    var original_tag = "";
+    function edit_tag() {
+        var tag = $(".pp_pic_holder p.pp_description");
+        if (tag.length) {
+            var value = "";
+            try {
+                value = tag.text();
+            } catch (err) {
+
+            }
+            if (value == " ") value = "";
+            
+            // Store in order to be able to revert
+            original_tag = value;
+
+            var replacement = "<textarea style='width: 95%;'>" + value + "</textarea>";
+            replacement += "<a href='#' onclick='save_tag();'>Save</a> <a href='#' onclick='javascript:cancel_tag();'>Cancel</a>";
+            tag.html(replacement);
+
+            // Hide the edit link
+            var edit_link = $(".pp_pic_holder a.edit_tag");
+            if (edit_link.length) {
+                edit_link.hide();
+            }
+        }
+    }
+
+    function save_tag() {
+        var new_tag = "";
+        var photo_name = "";
+
+        var tag = $(".pp_pic_holder p.pp_description");
+        var full_photo = $("#pp_full_res img");
+
+        if (tag.length && full_photo.length) {
+            // Switch the tag from the text area to the paragraph.
+            new_tag = tag.find("textarea").val();
+            tag.html(new_tag);
+
+            // Find the a whose href is the path, and retrieve its name.
+            var photo_path = full_photo.attr("src");
+
+            var photo = $(".gridster a[href='" + photo_path + "']");
+            if (photo.length) {
+                photo_name = photo.attr("name");
+            }
+
+            // Perform save
+            if (new_tag != "" && photo_name != "") {
+                $("form#edit_photo_tag input[name='tag']").attr("value", new_tag);
+                $("form#edit_photo_tag input[name='photo']").attr("value", photo_name);
+                $("form#edit_photo_tag").submit();
+            }
+        }
+
+        var edit_link = $(".pp_pic_holder a.edit_tag");
+        if (edit_link.length) {
+            edit_link.show();
+        }
+    }
+
+    function cancel_tag() {
+        var tag = $(".pp_pic_holder p.pp_description");
+        if (tag.length) {
+            tag.html(original_tag);
+        }
+
+        var edit_link = $(".pp_pic_holder a.edit_tag");
+        if (edit_link.length) {
+            edit_link.show();
+        }
     }
 
     function reload_gallery_effects() {
@@ -106,8 +175,8 @@
             show_title: false,
             gallery_markup: '', /* Set to empty to remove hover-gallery */
             keyboard_shortcuts: true, /* Set to false if you open forms inside prettyPhoto */
-            image_markup: 'Hello<img id="fullResImage" src="{path}" />World',
-            social_tools: '',
+            image_markup: '<img src="{path}" />',
+            social_tools: '<a href="#" class="edit_tag" onclick="javascript:edit_tag();">edit</a>',   // TODO, switch css to pencil icon
         });
     }
 
@@ -118,11 +187,16 @@
         $("form#delete_photo").submit();
     }
 
-    $(function() {
-        reload_upload();
+    // Catch-all for all functions that must be called after an AJAX request is performed.
+    function reload_photo_ajax() {
         reload_reorder_photos();
         reload_grid();
         reload_gallery_effects();
+    }
+
+    $(function() {
+        reload_upload();
+        reload_photo_ajax();
     });
 </script>
 {% endblock %}

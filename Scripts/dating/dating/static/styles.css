@@ -26,6 +26,8 @@
     transition: opacity .6s;
 }
 
+.gridster ul li { cursor: move; }
+
 .gridster .gs_w {
     background: #FFF;
     cursor: pointer;
