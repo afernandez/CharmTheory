@@ -13,18 +13,29 @@
 <script src="/static/js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
 
 <script type="text/javascript">
-    function upload_pic(event) {
-        $("div#upload_box").show();
-    }
-
-    function cancel_upload(event) {
-        $("div#upload_box").hide();
+    function open_file_chooser(event) {
+        $("div#upload_box").dialog("open");
     }
 
     function reload_upload() {
         // Must be hidden after the form's events are set.
         $("input#upload_token").val("{{ csrf_token }}");
-        $("div#upload_box").hide();
+
+        $("div#upload_box").dialog({
+            autoOpen: false,
+            resizable: false,
+            width: 600,
+            height: 250,
+            modal: false,
+            buttons: {
+                "Upload": function() {
+                    $("form#upload").submit();
+                },
+                Cancel: function() {
+                    $(this).dialog("close");
+                }
+            }
+        });
     }
 
     // Global variable used to indicate that a drag is in progress.
@@ -106,7 +117,7 @@
 
             }
             if (value == " ") value = "";
-            
+
             // Store in order to be able to revert
             original_tag = value;
 
@@ -218,17 +229,16 @@
                 Successfully added photo. Try scaling it.
             </div>
         {% endif %}
-        <a href="#" onclick="javascript:upload_pic(event);">Add</a>
-        <div id="upload_box" style="height: 400px; border: 2px solid black;">
+        <div style="clear: both;"></div>
+        <a href="#" onclick="javascript:open_file_chooser(event);">Add</a>
+        <div id="upload_box" title="Upload Picture">
             <form id="upload" action="/photos/upload/" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="file" name="file_path" accept="image/*" size="50"/>
+                <br/>
                 <a href="#">Facebook</a>
                 <a href="#">Dropbox</a>
                 <a href="#">Instagram</a>
-                <br/>
-                <input type="submit" value="Upload">
-                <a href="#" onclick="javascript:cancel_upload(event);">Cancel</a>
             </form>
         </div>
     </div>
