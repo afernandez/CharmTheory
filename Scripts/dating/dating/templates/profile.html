@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ user.nick }}{% endblock %}
 
-{% block content %}
 {% block javascript %}
 <script type="text/javascript">
     function toggle_main_form() {
@@ -139,6 +138,7 @@
     });
 </script>
 {% endblock %}
+{% block content %}
 <div style="clear: both;">
     <h2>{{ user.nick }}</h2>
     <div id="main_ajax">
