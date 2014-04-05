@@ -1,13 +1,56 @@
 {% extends "base.html" %}
 {% block title %}{{ user.nick }}{% endblock %}
 
+{% block javascript %}
+<link rel="stylesheet" type="text/css" href="/static/styles.css">
+
+<!-- http://www.no-margin-for-errors.com/projects/prettyphoto-jquery-lightbox-clone/ -->
+<link rel="stylesheet" href="/static/css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
+<script src="/static/js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+    function reload_gallery_effects() {
+        $("a[rel^='prettyPhoto']").prettyPhoto({
+            theme: 'facebook', /* dark_rounded and dark_square also look good */
+            opacity: 0.80,
+            show_title: false,
+            gallery_markup: '', /* Set to empty to remove hover-gallery */
+            keyboard_shortcuts: true, /* Set to false if you open forms inside prettyPhoto */
+            image_markup: '<img src="{path}" />',
+            social_tools: '',
+        });
+    }
+
+    $(function() {
+        reload_gallery_effects();
+    });
+</script>
+{% endblock %}
+
 {% block content %}
-<div style="clear: both;">
-    Picture of {{ user.nick }}<br/>
+
+<div style="clear: both; min-width: 240px; float: left;">
+    <img src="{{ user.main_photo }}"  class="image_frame" /><br/>
+</div>
+<div style="float: left; max-height: 400px; border: 2px solid black; padding: 10px;">
+    <h3>{{ user.nick }}</h3>
     Gender {{ user.gender }}<br/>
     Orientation {{ user.orientation }}<br/>
     Age {{ user.age }}<br/>
     City {{ user.city }}<br/>
+
+    <!-- Only show the next 4 photos photos -->
+    {% for photo in user.user_photos|dictsort:"order"|slice:"1:5" %}
+        <!-- The rel attribute is what allows it to be a lightbox display. -->
+        <!-- There's a bug in prettyPhoto where the title gets weird values if at least one of them is None. -->
+        <a href="{{ photo.rel_path_l }}" rel="prettyPhoto[{{ user.nick }}]" title='{{ photo.tag|default_if_none:" " }}' style="color: white;">
+            <!-- This is the thumbnail. -->
+            <img src="{{ photo.rel_path_s }}" width="120" height="120" class="image_frame" style="margin-left: 10px; margin-right: 10px;"/>
+        </a>
+    {% endfor %}
+    {% if user.user_photos|length > 5 %}
+        <span style="top: -60px; position: relative;">{{ user.user_photos|length|add:"-5"}} more</span>
+    {% endif %}
 </div>
 <div style="clear: both;">
     <div style="float: left; width: 200px; border: 1px solid black;">
@@ -15,51 +58,51 @@
             {% if user.relationship %}
             <tr>
                 <td>Relationship:</td>
-                <td>{{ user.relationship }}</td>
+                <td>{{ user.relationship|title }}</td>
             </tr>
             {% endif %}
 
             {% if user.personality %}
             <tr>
                 <td>Personality:</td>
-                <td>{{ user.personality }}</td>
+                <td>{{ user.personality|title }}</td>
             </tr>
             {% endif %}
 
             {% if user.humor %}
             <tr>
                 <td>Humor:</td>
-                <td>{{ user.humor }}</td>
+                <td>{{ user.humor|title }}</td>
             </tr>
             {% endif %}
 
             {% if user.ethnicity %}
             <tr>
                 <td>Ethnicity:</td>
-                <td>{{ user.ethnicity }}</td>
+                <td>{{ user.ethnicity|title }}</td>
             </tr>
             {% endif %}
 
             {% if user.body %}
             <tr>
                 <td>Body type:</td>
-                <td>{{ user.body }}</td>
+                <td>{{ user.body|title }} build</td>
             </tr>
             {% endif %}
 
             {% if user.height %}
             <tr>
                 <td>Height:</td>
-                <td>{{ user.height }}</td>
+                <td>{{ user.height_in_english }} ({{ user.height }} cm)</td>
             </tr>
             {% endif %}
 
             {% if user.education %}
             <tr>
                 <td>Education:</td>
-                <td>{{ user.education }}
+                <td>{{ user.education|title }}
                     {% if user.college %}
-                        </br>{{ user.college }}
+                        @ {{ user.college|title }}
                     {% endif %}
                 </td>
             </tr>
@@ -68,29 +111,35 @@
             {% if user.job %}
             <tr>
                 <td>Job:</td>
-                <td>{{ user.job }}
+                <td>{{ user.job|title }}
                 </td>
             </tr>
             {% endif %}
 
-            {% if user.income %}
+            {% if user.income and user.income > 0 %}
             <tr>
                 <td>Income:</td>
-                <td>{{ user.income }}</td>
+                <td>
+                    {% if user.income == 1000 %}
+                        1M
+                    {% else %}
+                        {{ user.income }}K
+                    {% endif %}
+                </td>
             </tr>
             {% endif %}
 
             {% if user.religion %}
             <tr>
                 <td>Religion:</td>
-                <td>{{ user.religion }}</td>
+                <td>{{ user.religion|title }}</td>
             </tr>
             {% endif %}
 
             {% if user.politics %}
             <tr>
                 <td>Political view:</td>
-                <td>{{ user.politics }}</td>
+                <td>{{ user.politics|title }}</td>
             </tr>
             {% endif %}
 
@@ -121,25 +170,52 @@
             {% if user.drink %}
             <tr>
                 <td>Drinks:</td>
-                <td>{{ user.drink }}</td>
+                <td>{{ user.drink|title }}</td>
             </tr>
             {% endif %}
 
             {% if user.smoke %}
             <tr>
                 <td>Smoke:</td>
-                <td>{{ user.smoke }}</td>
+                <td>{{ user.smoke|title }}</td>
             </tr>
             {% endif %}
 
+            {% if user.pet %}
             <tr>
                 <td>Pets:</td>
-                <td>TODO</td>
             </tr>
+            {% endif %}
         </table>
     </div>
     <div style="float: left; border: 1px solid black;">
-        About Me
+        <h2>My Story</h2>
+        {% if user.story %}
+            <div class="static_essay">{% autoescape off %}{{ user.story }}{% endautoescape %}</div>
+
+        {% else %}
+            Oops, they have not written anything, why don't you ask them?
+        {% endif %}
+
+        {% if user.likes %}
+            <h2>Likes</h2>
+            <div class="static_essay">{% autoescape off %}{{ user.likes }}{% endautoescape %}</div>
+        {% endif %}
+
+        {% if user.goals %}
+            <h2>Goals</h2>
+            <div class="static_essay">{% autoescape off %}{{ user.goals }}{% endautoescape %}</div>
+        {% endif %}
+
+        {% if user.talents %}
+            <h2>Talents</h2>
+            <div class="static_essay">{% autoescape off %}{{ user.talents }}{% endautoescape %}</div>
+        {% endif %}
+
+        {% if user.message_me_if %}
+            <h2>Message me if...</h2>
+            <div class="static_essay">{% autoescape off %}{{ user.message_me_if }}{% endautoescape %}</div>
+        {% endif %}
     </div>
 </div>
 <div style="clear: both;" />

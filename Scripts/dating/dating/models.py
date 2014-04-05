@@ -75,6 +75,7 @@ class User(models.Model):
     want_kids = models.CharField(max_length=45)
     drink = models.CharField(max_length=45)
     smoke = models.CharField(max_length=45)
+    pet = models.CharField(max_length=45)
 
     class Meta:
          db_table = "user"
