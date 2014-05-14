@@ -119,7 +119,10 @@ def login(request):
 
 def logout(request):
     # Clear the nickname
-    del request.session["nick"]
+    try:
+        del request.session["nick"]
+    except KeyError:
+        pass
     return render(request, "index.html")
 
 
