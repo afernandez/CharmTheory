@@ -10,7 +10,6 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 
 # Python Imports
 import hashlib
-import binascii
 import re
 from datetime import datetime
 import calendar
@@ -38,6 +37,7 @@ models.EmailField(blank=True)
 Date or Numeric fields require
 .DateField(blank=True, null=True)
 
+Django 1.5 in RedHat's OpenShift has problems with BINARY(x) field, instead, use CHAR(2x)
 '''
 
 
@@ -49,8 +49,8 @@ class User(models.Model):
     gender = models.CharField(max_length=45)
     orientation = models.CharField(max_length=45)
     email = models.EmailField(max_length=64)
-    password = models.BinaryField()
-    salt = models.BinaryField()
+    password = models.CharField(max_length=128)
+    salt = models.CharField(max_length=32)
     confirmation = models.CharField(max_length=64)
     active = models.SmallIntegerField()
     birthday = models.DateField(blank=True, null=True)
@@ -86,8 +86,8 @@ class User(models.Model):
     @classmethod
     def create(cls, nick, first_name, last_name, gender, orientation, email, password, salt, confirmation):
         """
-        @param password: binary data
-        @param salt: binary data
+        @param password: char(128) field
+        @param salt: char(32) field
         @param confirmation: suffix of the URL to confirm the user's account
         """
         user = User(nick=nick, first_name=first_name, last_name=last_name, gender=gender, orientation=orientation,
@@ -111,14 +111,20 @@ class User(models.Model):
         """
         @return: The user with the given email.
         """
-        return User.objects.get(email=email)
+        try:
+            return User.objects.get(email=email)
+        except User.DoesNotExist:
+            return None
 
     @classmethod
     def get_from_nick(cls, nick):
         """
         @return: The user with the given nickname.
         """
-        return User.objects.get(nick=nick)
+        try:
+            return User.objects.get(nick=nick)
+        except User.DoesNotExist:
+            return None
 
     @classmethod
     def login(cls, nick, raw_password):
@@ -131,13 +137,11 @@ class User(models.Model):
             if user:
                 m = hashlib.sha512()
 
-                password_hex = binascii.b2a_hex(user.password)
-                salt_hex = binascii.b2a_hex(user.salt)
                 m.update(raw_password)
-                m.update(salt_hex)
+                m.update(user.salt)
                 hashed_password = m.hexdigest()
 
-                if password_hex == hashed_password:
+                if user.password == hashed_password:
                     return user
         except User.DoesNotExist:
             return None

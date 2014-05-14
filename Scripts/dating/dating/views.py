@@ -7,7 +7,6 @@ from django.http import HttpResponse, Http404
 # Python Imports
 import hashlib
 import uuid
-import binascii
 from datetime import datetime, timedelta, date
 import os
 
@@ -221,12 +220,10 @@ def signup(request):
         m.update(raw_password)
         m.update(salt)
         hashed_password = m.hexdigest()
-        hashed_password_bin = binascii.a2b_hex(hashed_password)
-        salt_bin = binascii.a2b_hex(salt)
 
         confirmation = uuid.uuid4().hex
         # Create the user
-        user = User.create(nick, first_name, last_name, gender, orientation, email, hashed_password_bin, salt_bin,
+        user = User.create(nick, first_name, last_name, gender, orientation, email, hashed_password, salt,
                            confirmation)
 
         request.session["nick"] = user.nick
