@@ -27,7 +27,6 @@ from dating.models import User, UserPhoto
 # Third Party Imports
 
 # Needed by AJAX
-from annoying.decorators import ajax_request, render_to
 import json
 
 
